@@ -46,13 +46,23 @@ VERM2   = "#da3633"
 AMAR    = "#d29922"
 ROXO    = "#8957e5"
 
-F_UI    = ctk.CTkFont("Segoe UI", 12)
-F_MONO  = ctk.CTkFont("Courier New", 11)
-F_MONO_S= ctk.CTkFont("Courier New", 10)
-F_TITLE = ctk.CTkFont("Segoe UI", 22, "bold")
-F_H2    = ctk.CTkFont("Segoe UI", 13, "bold")
-F_SEC   = ctk.CTkFont("Courier New", 11, "bold")
-F_SMALL = ctk.CTkFont("Segoe UI", 10)
+F_UI    = None
+F_MONO  = None
+F_MONO_S= None
+F_TITLE = None
+F_H2    = None
+F_SEC   = None
+F_SMALL = None
+
+def _init_fonts():
+    global F_UI, F_MONO, F_MONO_S, F_TITLE, F_H2, F_SEC, F_SMALL
+    F_UI    = ctk.CTkFont("Segoe UI", 12)
+    F_MONO  = ctk.CTkFont("Courier New", 11)
+    F_MONO_S= ctk.CTkFont("Courier New", 10)
+    F_TITLE = ctk.CTkFont("Segoe UI", 22, "bold")
+    F_H2    = ctk.CTkFont("Segoe UI", 13, "bold")
+    F_SEC   = ctk.CTkFont("Courier New", 11, "bold")
+    F_SMALL = ctk.CTkFont("Segoe UI", 10)
 
 
 def _fval(s):
