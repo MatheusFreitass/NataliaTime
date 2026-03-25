@@ -100,10 +100,10 @@ ARQUIVO_PARAR = "PARAR.txt"
 
 # ── Intervalos de busca para os betas variáveis ───────────────────────────────
 INTERVALOS_BETA = {
-    "beta_exp": (50,   600),
-    "beta_g3":  (100, 1200),
-    "beta_g4":  (100, 1200),
-    "beta_g5":  (100, 1200),
+    "beta_exp": (50,   5000),
+    "beta_g3":  (50, 5000),
+    "beta_g4":  (100, 5000),
+    "beta_g5":  (100, 5000),
 }
 
 # ── Quais curvas participam do sorteio de pesos ───────────────────────────────
