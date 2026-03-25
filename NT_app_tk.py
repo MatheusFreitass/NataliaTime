@@ -802,8 +802,8 @@ class NTApp(tk.Tk):
                 erros.append(f"{nomes[g]}: campo vazio")
                 continue
             try:
-                para_gravar[chave] = float(val_str)
-                gravou.append(f"{nomes[g]} = {float(val_str)} eV")
+                para_gravar[chave] = _fval(val_str)
+                gravou.append(f"{nomes[g]} = {_fval(val_str)} eV")
             except ValueError:
                 erros.append(f"{nomes[g]}: valor inválido '{val_str}'")
 
