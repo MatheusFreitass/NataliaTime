@@ -810,6 +810,7 @@ class NTApp(tk.Tk):
                 "Não foi possível gravar:\n" + "\n".join(erros))
         if gravou:
             try:
+                import tomli_w
                 with open(toml_path, "wb") as f:
                     tomli_w.dump(dados, f)
                 print("Energias gravadas no parametros.toml:")
