@@ -268,6 +268,7 @@ def criar_script_temporario(script_path, cfg):
 class NTApp(ctk.CTk):
     def __init__(self):
         super().__init__()
+        _init_fonts()
         self.title("Natalia Time")
         self.geometry("1000x720")
         self.minsize(820, 620)
