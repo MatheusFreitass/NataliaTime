@@ -46,6 +46,10 @@ FONTE   = ("Segoe UI", 9)
 FONTE_M = ("Courier New", 9)
 FONTE_T = ("Courier New", 10, "bold")
 
+def _fval(s):
+    """Converte string para float aceitando vírgula ou ponto como separador decimal."""
+    return float(str(s).strip().replace(",", "."))
+
 # ── Helpers de widgets ────────────────────────────────────────────────────────
 def lbl(parent, texto, fg=TEXTO2, font=FONTE, **kw):
     return tk.Label(parent, text=texto, bg=parent["bg"] if hasattr(parent,"bg") else BG2,
