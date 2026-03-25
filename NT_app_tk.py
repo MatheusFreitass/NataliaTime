@@ -810,9 +810,18 @@ class NTApp(tk.Tk):
                 "Não foi possível gravar:\n" + "\n".join(erros))
         if gravou:
             try:
-                import tomli_w
-                with open(toml_path, "wb") as f:
-                    tomli_w.dump(dados, f)
+                with open(toml_path, "w", encoding="utf-8") as f:
+                    for k, v in dados.items():
+                        if isinstance(v, bool):
+                            f.write(f"{k} = {'true' if v else 'false'}\n")
+                        elif isinstance(v, float):
+                            f.write(f"{k} = {v}\n")
+                        elif isinstance(v, int):
+                            f.write(f"{k} = {v}\n")
+                        elif isinstance(v, str):
+                            f.write(f'{k} = "{v}"\n')
+                        else:
+                            f.write(f"{k} = {v}\n")
                 print("Energias gravadas no parametros.toml:")
                 for g in gravou:
                     print(f"  {g}")
