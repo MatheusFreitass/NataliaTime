@@ -779,20 +779,17 @@ class NTApp(tk.Tk):
                     self.v_gravar_e[g].set(False)
 
     def _gravar_energias_toml(self, caminho_csv):
-        """Grava energias marcadas com Gravar no parametros.toml."""
-        import tomllib
+        """Grava energias marcadas com Gravar no parametros.toml.
+        Edita o arquivo como texto para preservar comentários e formatação."""
         pasta = os.path.dirname(os.path.abspath(caminho_csv))
         toml_path = os.path.join(pasta, "parametros.toml")
         mapa_g = {"g1": "e_g3", "g2": "e_g4", "g3": "e_g5"}
         nomes  = {"g1": "Gaussiana 1", "g2": "Gaussiana 2", "g3": "Gaussiana 3"}
-        # Ler toml existente
-        try:
-            with open(toml_path, "rb") as f:
-                dados = tomllib.load(f)
-        except Exception:
-            dados = {}
+
         gravou = []
         erros  = []
+        # Coletar valores a gravar
+        para_gravar = {}
         for g, chave in mapa_g.items():
             if not self.v_gravar_e.get(g, tk.BooleanVar()).get():
                 continue
@@ -801,33 +798,47 @@ class NTApp(tk.Tk):
                 erros.append(f"{nomes[g]}: campo vazio")
                 continue
             try:
-                dados[chave] = float(val_str)
+                para_gravar[chave] = float(val_str)
                 gravou.append(f"{nomes[g]} = {float(val_str)} eV")
             except ValueError:
                 erros.append(f"{nomes[g]}: valor inválido '{val_str}'")
+
         if erros:
             messagebox.showwarning("Gravar energias",
                 "Não foi possível gravar:\n" + "\n".join(erros))
-        if gravou:
+        if not gravou:
+            return
+
+        try:
             try:
-                with open(toml_path, "w", encoding="utf-8") as f:
-                    for k, v in dados.items():
-                        if isinstance(v, bool):
-                            f.write(f"{k} = {'true' if v else 'false'}\n")
-                        elif isinstance(v, float):
-                            f.write(f"{k} = {v}\n")
-                        elif isinstance(v, int):
-                            f.write(f"{k} = {v}\n")
-                        elif isinstance(v, str):
-                            f.write(f'{k} = "{v}"\n')
-                        else:
-                            f.write(f"{k} = {v}\n")
-                print("Energias gravadas no parametros.toml:")
-                for g in gravou:
-                    print(f"  {g}")
-            except Exception as e:
-                messagebox.showerror("Erro ao gravar",
-                    f"Não foi possível salvar parametros.toml:\n{e}")
+                with open(toml_path, "r", encoding="utf-8") as f:
+                    linhas = f.readlines()
+            except FileNotFoundError:
+                linhas = []
+
+            pendentes = set(para_gravar.keys())
+            novas_linhas = []
+            for linha in linhas:
+                stripped = linha.strip().lstrip("# ").split("=")[0].strip()
+                if stripped in para_gravar:
+                    # Substituir linha (mesmo que estivesse comentada)
+                    novas_linhas.append(f"{stripped} = {para_gravar[stripped]}\n")
+                    pendentes.discard(stripped)
+                else:
+                    novas_linhas.append(linha)
+            # Chaves que não existiam no arquivo: adicionar no final
+            for chave in pendentes:
+                novas_linhas.append(f"{chave} = {para_gravar[chave]}\n")
+
+            with open(toml_path, "w", encoding="utf-8") as f:
+                f.writelines(novas_linhas)
+
+            print("Energias gravadas no parametros.toml:")
+            for g in gravou:
+                print(f"  {g}")
+        except Exception as e:
+            messagebox.showerror("Erro ao gravar",
+                f"Não foi possível salvar parametros.toml:\n{e}")
 
     def _procurar_seq(self):
         p = filedialog.askopenfilename(
