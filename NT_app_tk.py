@@ -780,7 +780,7 @@ class NTApp(tk.Tk):
 
     def _gravar_energias_toml(self, caminho_csv):
         """Grava energias marcadas com Gravar no parametros.toml."""
-        import tomllib, tomli_w
+        import tomllib
         pasta = os.path.dirname(os.path.abspath(caminho_csv))
         toml_path = os.path.join(pasta, "parametros.toml")
         mapa_g = {"g1": "e_g3", "g2": "e_g4", "g3": "e_g5"}
