@@ -936,8 +936,11 @@ class NTApp(tk.Tk):
                 pass
             _mapa = {"g1": "e_g3", "g2": "e_g4", "g3": "e_g5"}
             _nomes = {"g1": "Gaussiana 1", "g2": "Gaussiana 2", "g3": "Gaussiana 3"}
+            _ativa = {"g1": self.v_ativa_g1.get(), "g2": self.v_ativa_g2.get(), "g3": self.v_ativa_g3.get()}
             _faltando = []
             for g, chave in _mapa.items():
+                if not _ativa[g]:
+                    continue
                 _val_ui = self.e_energias[g].get().strip()
                 _val_toml = _toml_dados.get(chave)
                 if not _val_ui and not _val_toml:
