@@ -1,0 +1,23 @@
+# Executáveis compilados (arquivos grandes, não versionar)
+*.exe
+*.msi
+
+# Build artifacts do PyInstaller
+build/
+dist/
+*.spec
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Resultados de análises (gerados em runtime)
+Resultados/
+PARAR.txt
+
+# Arquivos temporários
+*.tmp
+*.temp
+~$*
