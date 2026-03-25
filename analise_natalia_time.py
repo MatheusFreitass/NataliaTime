@@ -2267,6 +2267,7 @@ def _rodar_analise(excel_path_run, curvas_ativas_run=None, modo_sequencia=False)
     # Preencher energias:
     #   Modo CSV: tenta toml → ENERGIAS_VALOR → erro (não usa fallback silencioso)
     #   Modo Excel: tenta célula → ENERGIAS_VALOR → fallback 1.0 eV (comportamento original)
+    _energia_para_curva = {"e_g3": "p_g3", "e_g4": "p_g4", "e_g5": "p_g5"}
     _energias_faltando = []
     for ke in ("e_g3", "e_g4", "e_g5"):
         if fixos.get(ke) is None:
@@ -2276,7 +2277,11 @@ def _rodar_analise(excel_path_run, curvas_ativas_run=None, modo_sequencia=False)
                 _origem = "parametros.toml" if _fmt_csv else "planilha"
                 print(f"  INFO: {ke} ausente no {_origem} — usando ENERGIAS_VALOR = {val_cfg} eV")
             elif _fmt_csv:
-                _energias_faltando.append(ke)
+                curva = _energia_para_curva[ke]
+                if CURVAS_PESO_ATIVAS.get(curva, False):
+                    _energias_faltando.append(ke)
+                else:
+                    fixos[ke] = 1.0   # valor irrelevante — curva inativa
             else:
                 fixos[ke] = 1.0   # fallback Excel (comportamento original)
                 print(f"  AVISO: {ke} vazio na planilha e sem valor em ENERGIAS_VALOR "
