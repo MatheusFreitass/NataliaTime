@@ -888,7 +888,7 @@ class NTApp(tk.Tk):
         self._atualizar_lista_seq()
 
     def _coletar_cfg(self):
-        def f(e): return float(e.get()) if e.get().strip() else None
+        def f(e): return _fval(e.get()) if e.get().strip() else None
         def i_v(e): return int(e.get()) if e.get().strip().isdigit() else None
 
         cpu_val = self.slider_cpu.get()
@@ -897,20 +897,20 @@ class NTApp(tk.Tk):
         return dict(
             excel_path         = self.entry_planilha.get().strip(),
             resultados_dir     = RESULTADOS_DIR,
-            score_minimo       = float(self.e_score.get() or 0.99),
-            desvio_alvo        = float(self.e_rmse.get() or 0.04),
+            score_minimo       = _fval(self.e_score.get() or 0.99),
+            desvio_alvo        = _fval(self.e_rmse.get() or 0.04),
             iteracoes_beta     = int(self.e_iter_beta.get() or 1500),
             iteracoes_pesos    = int(self.e_iter_pesos.get() or 1500),
             semente            = i_v(self.e_semente),
             n_processos        = n_proc,
-            beta_exp_lo        = float(self.e_beta_lo["exp"].get() or 50),
-            beta_exp_hi        = float(self.e_beta_hi["exp"].get() or 600),
-            beta_g1_lo         = float(self.e_beta_lo["g1"].get() or 100),
-            beta_g1_hi         = float(self.e_beta_hi["g1"].get() or 1200),
-            beta_g2_lo         = float(self.e_beta_lo["g2"].get() or 100),
-            beta_g2_hi         = float(self.e_beta_hi["g2"].get() or 1200),
-            beta_g3_lo         = float(self.e_beta_lo["g3"].get() or 100),
-            beta_g3_hi         = float(self.e_beta_hi["g3"].get() or 1200),
+            beta_exp_lo        = _fval(self.e_beta_lo["exp"].get() or 50),
+            beta_exp_hi        = _fval(self.e_beta_hi["exp"].get() or 600),
+            beta_g1_lo         = _fval(self.e_beta_lo["g1"].get() or 100),
+            beta_g1_hi         = _fval(self.e_beta_hi["g1"].get() or 1200),
+            beta_g2_lo         = _fval(self.e_beta_lo["g2"].get() or 100),
+            beta_g2_hi         = _fval(self.e_beta_hi["g2"].get() or 1200),
+            beta_g3_lo         = _fval(self.e_beta_lo["g3"].get() or 100),
+            beta_g3_hi         = _fval(self.e_beta_hi["g3"].get() or 1200),
             ativa_exp          = self.v_ativa_exp.get(),
             ativa_g1           = self.v_ativa_g1.get(),
             ativa_g2           = self.v_ativa_g2.get(),
@@ -921,7 +921,7 @@ class NTApp(tk.Tk):
             e_g1_nm_livre      = self.v_nm_livre["g1"].get(),
             e_g2_nm_livre      = self.v_nm_livre["g2"].get(),
             e_g3_nm_livre      = self.v_nm_livre["g3"].get(),
-            peso_min_mb        = float(self.e_peso_mb.get() or 0.01),
+            peso_min_mb        = _fval(self.e_peso_mb.get() or 0.01),
             salvar_graficos_top= int(self.e_salvar_top.get() or 20),
             usar_nm            = self.v_usar_nm.get(),
             nm_top_candidatos  = int(self.e_nm_top.get() or 5),
