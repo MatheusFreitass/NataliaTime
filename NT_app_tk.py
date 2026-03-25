@@ -1164,5 +1164,11 @@ class NTApp(tk.Tk):
 
 
 if __name__ == "__main__":
-    app = NTApp()
-    app.mainloop()
+    if len(sys.argv) >= 3 and sys.argv[1] == "--analyze":
+        import runpy
+        script = sys.argv[2]
+        sys.argv = [script]
+        runpy.run_path(script, run_name="__main__")
+    else:
+        app = NTApp()
+        app.mainloop()
