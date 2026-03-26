@@ -21,3 +21,6 @@ PARAR.txt
 *.tmp
 *.temp
 ~$*
+
+# Pasta pessoal — nunca versionar
+Pessoal/
