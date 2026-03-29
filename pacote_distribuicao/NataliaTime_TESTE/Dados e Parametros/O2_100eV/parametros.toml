@@ -1,6 +1,7 @@
 # Parametros fisicos do experimento
 # Gerado pelo Natalia Time - Criador de Experimento
 # T_gas = 293.0 K  ->  beta_mb = 2572.630956
+# Offset de tempo aplicado aos dados: 600.0 ns (atraso da aquisicao eletronica)
 
 # Parametros da molecula
 beta_mb = 2572.630956

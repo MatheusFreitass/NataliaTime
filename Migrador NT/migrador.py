@@ -85,8 +85,8 @@ def _ler_xlsx(caminho):
     wb = load_workbook(caminho, data_only=True, read_only=True)
     if ABA_ANALISE not in wb.sheetnames:
         raise ValueError(
-            f"Aba '{ABA_ANALISE}' nao encontrada no arquivo.\n"
-            f"Abas disponiveis: {', '.join(wb.sheetnames)}"
+            f"Aba '{ABA_ANALISE}' não encontrada no arquivo.\n"
+            f"Abas disponíveis: {', '.join(wb.sheetnames)}"
         )
     ws = wb[ABA_ANALISE]
     pontos = []
@@ -100,7 +100,7 @@ def _ler_xlsx(caminho):
         try:
             t = float(l)
             s = float(m)
-            # Filtrar pontos de referencia (t=0, u/u0=1)
+            # Filtrar pontos de referência (t=0, u/u0=1)
             if t == 0.0 and abs(s - 1.0) < 1e-9:
                 continue
             pontos.append((t, s))
@@ -152,32 +152,32 @@ class MigradorApp(tk.Tk):
         _lbl(r0b, "  (ex: O2_100eV)", fg=TEXTO2).pack(side="left")
 
         # ── Parametros fisicos ────────────────────────────────────────────────
-        s1 = _secao(self, "Parametros fisicos")
+        s1 = _secao(self, "Parâmetros físicos")
         campos = [
-            ("T_gas",    "T gas (K)",             "Temperatura do gas de expansao",                "300"),
-            ("m_frag",   "m fragmento",            "Massa do fragmento ionico (ex: 16 para O+)",    "16.0"),
-            ("m_mol",    "m molecula mae",         "Massa da molecula precursora (ex: 32 para O2)", "32.0"),
-            ("DE",       "DE - deflexao (eV)",     "Energia de deflexao do espectrometro",          "350.0"),
-            ("D",        "D - distancia (m)",      "Distancia de voo",                              "6.8"),
-            ("LL",       "LL - comprimento (m)",   "Comprimento do tubo",                           "6.8"),
-            ("I7_NORM",  "I7 - normaliz. (ns)",    "Tempo de normalizacao das amplitudes",          "500.0"),
-            ("t_offset", "Offset de tempo (ns)",   "Correcao do tempo de aquisicao eletronica",     "600.0"),
+            ("T_gas",    "T_gas (K)",              "Temperatura do gás de expansão",                  "300"),
+            ("m_frag",   "m fragmento",             "Massa do fragmento iônico (ex: 16 para O+)",      "16.0"),
+            ("m_mol",    "m molécula mãe",          "Massa da molécula precursora (ex: 32 para O2)",   "32.0"),
+            ("DE",       "DE — deflexão (eV)",      "Energia de deflexão do espectrômetro",            "350.0"),
+            ("D",        "D — distância (m)",       "Distância de voo livre",                          "6.8"),
+            ("LL",       "LL — comprimento (m)",    "Comprimento do tubo de voo",                      "6.8"),
+            ("I7_NORM",  "I7 — normalização (ns)",  "Tempo de referência para normalização das amplitudes", "500.0"),
+            ("t_offset", "Offset de tempo (ns)",    "Correção do atraso da aquisição eletrônica",      "600.0"),
         ]
         self.e_params = {}
         for chave, rotulo, tooltip, padrao in campos:
             r = tk.Frame(s1, bg=BG2); r.pack(fill="x", pady=3)
-            lbl = _lbl(r, f"{rotulo}:"); lbl.config(width=20, anchor="w"); lbl.pack(side="left")
+            lbl = _lbl(r, f"{rotulo}:"); lbl.config(width=22, anchor="w"); lbl.pack(side="left")
             e = _entry(r, width=12, default=padrao); e.pack(side="left", padx=(4, 10))
             _lbl(r, tooltip, fg=TEXTO2).pack(side="left")
             self.e_params[chave] = e
 
-        tk.Label(s1, text="Beta_MB calculado automaticamente a partir de T e m molecula mae.",
+        tk.Label(s1, text="Beta_MB calculado automaticamente a partir de T e m molécula mãe.",
                  bg=BG2, fg=TEXTO2, font=FONTE).pack(anchor="w", pady=(4, 0))
-        tk.Label(s1, text="Energias (E_G1, E_G2, E_G3) sao definidas na interface do Natalia Time.",
+        tk.Label(s1, text="Energias (E_G1, E_G2, E_G3) são definidas na interface do Natalia Time.",
                  bg=BG2, fg=AMAR, font=FONTE).pack(anchor="w", pady=(2, 0))
         tk.Label(s1,
-                 text="ATENCAO: O offset de tempo (padrao 600 ns) corrige o atraso da aquisicao\n"
-                      "eletronica. Ele e somado a todos os tempos dos dados brutos ao exportar.\n"
+                 text="ATENÇÃO: O offset de tempo (padrão 600 ns) corrige o atraso da aquisição\n"
+                      "eletrônica. Ele é somado a todos os tempos dos dados brutos ao exportar.\n"
                       "Verifique sempre este valor antes de criar o experimento.",
                  bg=BG2, fg=VERM, font=FONTE, justify="left").pack(anchor="w", pady=(4, 0))
 
@@ -202,11 +202,11 @@ class MigradorApp(tk.Tk):
 
         # ── Aba Automatico ────────────────────────────────────────────────────
         aba_auto = tk.Frame(nb, bg=BG2)
-        nb.add(aba_auto, text="Automatico - ler do .xlsx")
+        nb.add(aba_auto, text="Automático — ler do .xlsx")
 
         tk.Label(aba_auto,
                  text="Selecione o arquivo .xlsx de dados brutos (ex: Dados_O2_100eV.xlsx).\n"
-                      "O programa le automaticamente a aba 'Analise_tempo', colunas L e M.",
+                      "O programa lê automaticamente a aba 'Analise_tempo', colunas L e M.",
                  bg=BG2, fg=TEXTO2, font=FONTE, justify="left").pack(anchor="w", padx=8, pady=(8, 6))
 
         r_auto = tk.Frame(aba_auto, bg=BG2); r_auto.pack(fill="x", padx=8, pady=4)
@@ -220,7 +220,7 @@ class MigradorApp(tk.Tk):
 
         # ── Aba Manual ────────────────────────────────────────────────────────
         aba_manual = tk.Frame(nb, bg=BG2)
-        nb.add(aba_manual, text="Manual - colar dados")
+        nb.add(aba_manual, text="Manual — colar dados")
 
         tk.Label(aba_manual,
                  text="Cole os dados copiados do Excel (colunas Tempo e Sinal, separadas por Tab):",
@@ -315,7 +315,7 @@ class MigradorApp(tk.Tk):
             return
         n = len(self._parsear_dados_manual())
         self.lbl_linhas.config(
-            text=f"{n} pontos validos" if n else "Nenhum ponto valido detectado",
+            text=f"{n} pontos válidos" if n else "Nenhum ponto válido detectado",
             fg=VERDE if n >= 5 else VERM)
 
     def _parsear_dados_manual(self):
@@ -353,13 +353,13 @@ class MigradorApp(tk.Tk):
         for chave, e in self.e_params.items():
             val_str = e.get().strip()
             if not val_str:
-                messagebox.showwarning("Parametro vazio", f"O campo '{chave}' esta vazio.")
+                messagebox.showwarning("Parâmetro vazio", f"O campo '{chave}' está vazio.")
                 e.focus_set(); return None
             try:
                 valores[chave] = float(val_str.replace(",", "."))
             except ValueError:
-                messagebox.showwarning("Valor invalido",
-                    f"Valor '{val_str}' para '{chave}' nao e um numero valido.")
+                messagebox.showwarning("Valor inválido",
+                    f"Valor '{val_str}' para '{chave}' não é um número válido.")
                 e.focus_set(); return None
         return valores
 
@@ -371,8 +371,8 @@ class MigradorApp(tk.Tk):
             messagebox.showwarning("Nome vazio", "Informe o nome do experimento.")
             self.e_nome.focus_set(); return
         if any(c in set(r'\/:*?"<>|') for c in nome):
-            messagebox.showwarning("Nome invalido",
-                f"O nome '{nome}' contem caracteres invalidos para nome de pasta.")
+            messagebox.showwarning("Nome inválido",
+                f"O nome '{nome}' contém caracteres inválidos para nome de pasta.")
             return
 
         valores = self._validar_params()
@@ -384,8 +384,8 @@ class MigradorApp(tk.Tk):
         if aba_ativa == 0:
             xlsx = self.e_xlsx.get().strip()
             if not xlsx:
-                messagebox.showwarning("Arquivo nao selecionado",
-                    "Selecione o arquivo .xlsx na aba Automatico.")
+                messagebox.showwarning("Arquivo não selecionado",
+                    "Selecione o arquivo .xlsx na aba Automático.")
                 return
             try:
                 pontos = _ler_xlsx(xlsx)
@@ -401,8 +401,8 @@ class MigradorApp(tk.Tk):
 
         if len(pontos) < 5:
             messagebox.showwarning("Dados insuficientes",
-                f"Apenas {len(pontos)} pontos validos detectados.\n"
-                "Verifique se os dados estao no formato correto.")
+                f"Apenas {len(pontos)} pontos válidos detectados.\n"
+                "Verifique se os dados estão no formato correto.")
             return
 
         destino_raiz = self.e_destino.get().strip()
@@ -413,7 +413,7 @@ class MigradorApp(tk.Tk):
         pasta_exp = os.path.join(destino_raiz, nome)
         if os.path.exists(pasta_exp):
             if not messagebox.askyesno("Pasta existente",
-                f"A pasta '{nome}' ja existe.\nDeseja sobrescrever os arquivos?"):
+                f"A pasta '{nome}' já existe.\nDeseja sobrescrever os arquivos?"):
                 return
 
         beta_mb  = _calcular_beta_mb(valores["T_gas"], valores["m_mol"])
@@ -428,15 +428,15 @@ class MigradorApp(tk.Tk):
                     f.write(f"{t + t_offset},{s}\n")
 
             with open(os.path.join(pasta_exp, "parametros.toml"), "w", encoding="utf-8") as f:
-                f.write("# Parametros fisicos do experimento\n")
+                f.write("# Parâmetros físicos do experimento\n")
                 f.write("# Gerado pelo Natalia Time - Criador de Experimento\n")
                 f.write(f"# T_gas = {valores['T_gas']} K  ->  beta_mb = {beta_mb:.6f}\n")
-                f.write(f"# Offset de tempo aplicado aos dados: {t_offset:.1f} ns (atraso da aquisicao eletronica)\n\n")
-                f.write("# Parametros da molecula\n")
+                f.write(f"# Offset de tempo aplicado aos dados: {t_offset:.1f} ns (atraso da aquisição eletrônica)\n\n")
+                f.write("# Parâmetros da molécula\n")
                 f.write(f"beta_mb = {beta_mb:.6f}\n")
                 f.write(f"m_frag  = {valores['m_frag']}\n")
                 f.write(f"m_mol   = {valores['m_mol']}\n")
-                f.write("\n# Parametros geometricos do espectrometro DETOF\n")
+                f.write("\n# Parâmetros geométricos do espectrômetro DETOF\n")
                 f.write(f"DE      = {valores['DE']}\n")
                 f.write(f"D       = {valores['D']}\n")
                 f.write(f"LL      = {valores['LL']}\n")
@@ -448,7 +448,7 @@ class MigradorApp(tk.Tk):
                 f.write("# e_g5 = 2.0\n")
 
         except Exception as ex:
-            messagebox.showerror("Erro ao criar", f"Nao foi possivel criar os arquivos:\n{ex}")
+            messagebox.showerror("Erro ao criar", f"Não foi possível criar os arquivos:\n{ex}")
             return
 
         self.lbl_status.config(
@@ -458,7 +458,7 @@ class MigradorApp(tk.Tk):
         if messagebox.askyesno("Pronto!",
             f"Experimento '{nome}' criado com sucesso!\n\n"
             f"  * {len(pontos)} pontos em dados.csv\n"
-            f"  * Parametros em parametros.toml\n\n"
+            f"  * Parâmetros em parametros.toml\n\n"
             f"Pasta: {pasta_exp}\n\nAbrir a pasta agora?"):
             try:
                 os.startfile(pasta_exp)
