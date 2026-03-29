@@ -1310,7 +1310,22 @@ class NTApp(ctk.CTk):
 
 if __name__ == "__main__":
     import multiprocessing
-    multiprocessing.freeze_support()   # DEVE ser a primeira chamada — intercepta workers do Pool no Windows
+
+    # Worker de multiprocessing: carrega o temp script para que _worker_init/_processar_rodada
+    # existam em __main__ antes de freeze_support() tentar desserializá-los.
+    _tof_script = os.environ.get("_TOF_MP_SCRIPT", "")
+    if _tof_script and os.path.isfile(_tof_script):
+        _ns = {"__name__": "__mp_worker__", "__file__": _tof_script, "__spec__": None}
+        try:
+            with open(_tof_script, "r", encoding="utf-8") as _f:
+                exec(compile(_f.read(), _tof_script, "exec"), _ns)
+            for _k, _v in list(_ns.items()):
+                if not _k.startswith("__"):
+                    setattr(sys.modules["__main__"], _k, _v)
+        except Exception:
+            pass
+
+    multiprocessing.freeze_support()
     if len(sys.argv) >= 3 and sys.argv[1] == "--analyze":
         import runpy
         script = sys.argv[2]
