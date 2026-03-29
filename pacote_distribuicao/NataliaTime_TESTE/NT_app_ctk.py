@@ -1309,13 +1309,5 @@ class NTApp(ctk.CTk):
 
 
 if __name__ == "__main__":
-    import multiprocessing
-    multiprocessing.freeze_support()   # DEVE ser a primeira chamada — intercepta workers do Pool no Windows
-    if len(sys.argv) >= 3 and sys.argv[1] == "--analyze":
-        import runpy
-        script = sys.argv[2]
-        sys.argv = [script]
-        runpy.run_path(script, run_name="__main__")
-    else:
-        app = NTApp()
-        app.mainloop()
+    app = NTApp()
+    app.mainloop()

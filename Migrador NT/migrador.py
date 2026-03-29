@@ -154,13 +154,14 @@ class MigradorApp(tk.Tk):
         # ── Parametros fisicos ────────────────────────────────────────────────
         s1 = _secao(self, "Parametros fisicos")
         campos = [
-            ("T_gas",   "T gas (K)",            "Temperatura do gas de expansao",                "300"),
-            ("m_frag",  "m fragmento",           "Massa do fragmento ionico (ex: 16 para O+)",    "16.0"),
-            ("m_mol",   "m molecula mae",        "Massa da molecula precursora (ex: 32 para O2)", "32.0"),
-            ("DE",      "DE - deflexao (eV)",    "Energia de deflexao do espectrometro",          "350.0"),
-            ("D",       "D - distancia (m)",     "Distancia de voo",                              "6.8"),
-            ("LL",      "LL - comprimento (m)",  "Comprimento do tubo",                           "6.8"),
-            ("I7_NORM", "I7 - normaliz. (ns)",   "Tempo de normalizacao das amplitudes",          "500.0"),
+            ("T_gas",    "T gas (K)",             "Temperatura do gas de expansao",                "300"),
+            ("m_frag",   "m fragmento",            "Massa do fragmento ionico (ex: 16 para O+)",    "16.0"),
+            ("m_mol",    "m molecula mae",         "Massa da molecula precursora (ex: 32 para O2)", "32.0"),
+            ("DE",       "DE - deflexao (eV)",     "Energia de deflexao do espectrometro",          "350.0"),
+            ("D",        "D - distancia (m)",      "Distancia de voo",                              "6.8"),
+            ("LL",       "LL - comprimento (m)",   "Comprimento do tubo",                           "6.8"),
+            ("I7_NORM",  "I7 - normaliz. (ns)",    "Tempo de normalizacao das amplitudes",          "500.0"),
+            ("t_offset", "Offset de tempo (ns)",   "Correcao do tempo de aquisicao eletronica",     "600.0"),
         ]
         self.e_params = {}
         for chave, rotulo, tooltip, padrao in campos:
