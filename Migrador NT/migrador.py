@@ -175,6 +175,11 @@ class MigradorApp(tk.Tk):
                  bg=BG2, fg=TEXTO2, font=FONTE).pack(anchor="w", pady=(4, 0))
         tk.Label(s1, text="Energias (E_G1, E_G2, E_G3) sao definidas na interface do Natalia Time.",
                  bg=BG2, fg=AMAR, font=FONTE).pack(anchor="w", pady=(2, 0))
+        tk.Label(s1,
+                 text="ATENCAO: O offset de tempo (padrao 600 ns) corrige o atraso da aquisicao\n"
+                      "eletronica. Ele e somado a todos os tempos dos dados brutos ao exportar.\n"
+                      "Verifique sempre este valor antes de criar o experimento.",
+                 bg=BG2, fg=VERM, font=FONTE, justify="left").pack(anchor="w", pady=(4, 0))
 
         # ── Dados - abas Automatico / Manual ─────────────────────────────────
         s2_frame = tk.Frame(self, bg=BG)
