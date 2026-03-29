@@ -27,7 +27,6 @@ ESTRUTURA:
 # SEÇÃO 1 — IMPORTAÇÕES E UTILITÁRIOS
 # =============================================================================
 
-import sys
 import os
 import datetime
 import multiprocessing as mp
@@ -35,10 +34,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-
-# Garante UTF-8 no stdout mesmo em ambiente Windows com cp1252
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 
 def br(valor, decimais=6):
@@ -105,10 +100,10 @@ ARQUIVO_PARAR = "PARAR.txt"
 
 # ── Intervalos de busca para os betas variáveis ───────────────────────────────
 INTERVALOS_BETA = {
-    "beta_exp": (50,   5000),
-    "beta_g3":  (50, 5000),
-    "beta_g4":  (100, 5000),
-    "beta_g5":  (100, 5000),
+    "beta_exp": (50,   600),
+    "beta_g3":  (100, 1200),
+    "beta_g4":  (100, 1200),
+    "beta_g5":  (100, 1200),
 }
 
 # ── Quais curvas participam do sorteio de pesos ───────────────────────────────
@@ -1018,25 +1013,25 @@ def _processar_rodada(args):
             pesos["p_g3"], pesos["p_g4"], pesos["p_g5"],
             fixos_rodada, amps_beta
         )
-        af4    = calcular_af4(sinal_exp, sinal_teo)
-        valido = af4 >= SCORE_MINIMO
+        af4            = calcular_af4(sinal_exp, sinal_teo)
+        rmse, m_r, b_r = calcular_rmse(tempos_exp, sinal_exp, sinal_teo)
+        valido         = af4 >= SCORE_MINIMO
 
-        ml = melhor_local
         if valido:
-            # RMSE só calculado quando R² passa — evita custo desnecessário
-            rmse, m_r, b_r = calcular_rmse(tempos_exp, sinal_exp, sinal_teo)
             validos += 1
             if rmse <= DESVIO_ALVO:
                 alta_precisao += 1
-            if not ml["valido"] or rmse < ml["rmse"] or \
-                    (rmse == ml["rmse"] and af4 > ml["af4"]):
+
+        ml = melhor_local
+        if valido:
+            if not ml["valido"] or rmse < ml["rmse"] or                (rmse == ml["rmse"] and af4 > ml["af4"]):
                 melhor_local = {"af4": af4, "rmse": rmse,
                                 "m_reta": m_r, "b_reta": b_r,
                                 "valido": True, "pesos": dict(pesos)}
         else:
             if not ml["valido"] and af4 > ml["af4"]:
-                melhor_local = {"af4": af4, "rmse": 99999,
-                                "m_reta": 0.0, "b_reta": 0.0,
+                melhor_local = {"af4": af4, "rmse": rmse,
+                                "m_reta": m_r, "b_reta": b_r,
                                 "valido": False, "pesos": dict(pesos)}
 
     return {
@@ -2272,7 +2267,6 @@ def _rodar_analise(excel_path_run, curvas_ativas_run=None, modo_sequencia=False)
     # Preencher energias:
     #   Modo CSV: tenta toml → ENERGIAS_VALOR → erro (não usa fallback silencioso)
     #   Modo Excel: tenta célula → ENERGIAS_VALOR → fallback 1.0 eV (comportamento original)
-    _energia_para_curva = {"e_g3": "p_g3", "e_g4": "p_g4", "e_g5": "p_g5"}
     _energias_faltando = []
     for ke in ("e_g3", "e_g4", "e_g5"):
         if fixos.get(ke) is None:
@@ -2282,11 +2276,7 @@ def _rodar_analise(excel_path_run, curvas_ativas_run=None, modo_sequencia=False)
                 _origem = "parametros.toml" if _fmt_csv else "planilha"
                 print(f"  INFO: {ke} ausente no {_origem} — usando ENERGIAS_VALOR = {val_cfg} eV")
             elif _fmt_csv:
-                curva = _energia_para_curva[ke]
-                if CURVAS_PESO_ATIVAS.get(curva, False):
-                    _energias_faltando.append(ke)
-                else:
-                    fixos[ke] = 1.0   # valor irrelevante — curva inativa
+                _energias_faltando.append(ke)
             else:
                 fixos[ke] = 1.0   # fallback Excel (comportamento original)
                 print(f"  AVISO: {ke} vazio na planilha e sem valor em ENERGIAS_VALOR "
