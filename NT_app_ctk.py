@@ -29,6 +29,7 @@ SCRIPT_PATH    = os.path.join(_base, "analise_natalia_time.py")
 if not os.path.isfile(SCRIPT_PATH):
     SCRIPT_PATH = os.path.join(_meipass, "analise_natalia_time.py")
 RESULTADOS_DIR = os.path.join(_base, "Resultados")
+LOGO_PATH      = os.path.join(_base, "logo_lms.png")
 
 # ── Paleta ─────────────────────────────────────────────────────────────────────
 BG      = "#0e1117"
