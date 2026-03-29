@@ -1119,6 +1119,10 @@ def busca_aleatoria(tempos_exp: np.ndarray,
         historico     = []
         melhor_global = {"af4": -9999, "rmse": 99999, "valido": False}
         validos = alta_precisao = concluidas = 0
+        # Passa o caminho do temp script para os workers via env var
+        # (necessário para frozen exe — workers precisam carregar as funções do __main__)
+        if getattr(sys, 'frozen', False):
+            os.environ['_TOF_MP_SCRIPT'] = str(globals().get('__file__', ''))
         pool = mp.Pool(processes=n_proc,
                        initializer=_worker_init,
                        initargs=(fixos, tempos_exp, sinal_exp))
