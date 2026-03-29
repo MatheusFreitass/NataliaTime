@@ -281,6 +281,7 @@ class NTApp(ctk.CTk):
         self.sequencia    = []
         self._log_q       = None
         self._res_q       = None
+        self._logo_pil    = self._carregar_logo()
 
         self._build_header()
         self._build_topbar()
