@@ -416,7 +416,8 @@ class MigradorApp(tk.Tk):
                 f"A pasta '{nome}' ja existe.\nDeseja sobrescrever os arquivos?"):
                 return
 
-        beta_mb = _calcular_beta_mb(valores["T_gas"], valores["m_mol"])
+        beta_mb  = _calcular_beta_mb(valores["T_gas"], valores["m_mol"])
+        t_offset = valores["t_offset"]
 
         try:
             os.makedirs(pasta_exp, exist_ok=True)
@@ -424,12 +425,13 @@ class MigradorApp(tk.Tk):
             with open(os.path.join(pasta_exp, "dados.csv"), "w", encoding="utf-8") as f:
                 f.write("tempo,sinal\n")
                 for t, s in pontos:
-                    f.write(f"{t},{s}\n")
+                    f.write(f"{t + t_offset},{s}\n")
 
             with open(os.path.join(pasta_exp, "parametros.toml"), "w", encoding="utf-8") as f:
                 f.write("# Parametros fisicos do experimento\n")
                 f.write("# Gerado pelo Natalia Time - Criador de Experimento\n")
-                f.write(f"# T_gas = {valores['T_gas']} K  ->  beta_mb = {beta_mb:.6f}\n\n")
+                f.write(f"# T_gas = {valores['T_gas']} K  ->  beta_mb = {beta_mb:.6f}\n")
+                f.write(f"# Offset de tempo aplicado aos dados: {t_offset:.1f} ns (atraso da aquisicao eletronica)\n\n")
                 f.write("# Parametros da molecula\n")
                 f.write(f"beta_mb = {beta_mb:.6f}\n")
                 f.write(f"m_frag  = {valores['m_frag']}\n")
