@@ -1,0 +1,192 @@
+══════════════════════════════════════════════════════════════════
+              NATALIA TIME & MIGRADOR — GUIA DE USO
+                     (versão para iniciantes)
+══════════════════════════════════════════════════════════════════
+
+Olá! Este guia vai te ajudar a usar o Natalia Time mesmo que você
+nunca tenha feito esse tipo de análise antes. Não se preocupe —
+o programa faz a parte difícil por você.
+
+
+──────────────────────────────────────────────────────────────────
+  O QUE O PROGRAMA FAZ?
+──────────────────────────────────────────────────────────────────
+
+Quando um feixe de luz interage com moléculas num experimento DETOF,
+os fragmentos gerados voam por um tubo e chegam a um detector em
+tempos diferentes dependendo da sua velocidade. Isso gera um gráfico
+chamado espectro DETOF — uma curva que mostra quantos fragmentos
+chegaram em cada instante de tempo.
+
+O Natalia Time pega esse espectro experimental e tenta encontrar
+a melhor combinação de curvas teóricas que o reproduz. É como
+resolver um quebra-cabeça: o programa testa milhares de combinações
+automaticamente e te diz qual encaixa melhor.
+
+O resultado é um número chamado R² (pronuncia-se "R quadrado").
+Quanto mais próximo de 1, melhor o ajuste. Um bom resultado
+costuma ter R² acima de 0.99.
+
+
+──────────────────────────────────────────────────────────────────
+  O QUE VOCÊ VAI PRECISAR
+──────────────────────────────────────────────────────────────────
+
+Para usar o Natalia Time, você precisa de:
+
+  • Os dados experimentais do seu experimento.
+    Eles podem estar numa planilha Excel (.xlsm ou .xlsx) ou
+    numa pasta criada pelo Migrador (explicado mais abaixo).
+
+  • Os três arquivos do programa na mesma pasta:
+      NataliaTime.exe
+      NT_app_tk.py
+      analise_natalia_time.py
+
+  Dê duplo clique em NataliaTime.exe para abrir.
+
+
+──────────────────────────────────────────────────────────────────
+  PASSO A PASSO
+──────────────────────────────────────────────────────────────────
+
+PASSO 1 — Selecione o experimento
+  Na barra no topo da janela, clique em "Procurar" e escolha:
+    • Sua planilha Excel (.xlsm), OU
+    • O arquivo dados.csv dentro da pasta do experimento.
+
+  O programa mostrará ao lado se detectou "📊 Excel" ou
+  "📄 CSV + TOML". Qualquer um dos dois funciona.
+
+PASSO 2 — Defina as energias (apenas para o formato CSV)
+  Se você selecionou um arquivo dados.csv, precisará informar
+  as energias das gaussianas (E_G1, E_G2, E_G3) na aba
+  Configuração, na seção "⚡ Energias".
+
+  Esses valores (em eV) descrevem a energia de translação dos
+  fragmentos e dependem do experimento. Pergunte ao responsável
+  pelo laboratório se não souber os valores.
+
+  Após preencher, marque "Gravar" ao lado de cada campo para
+  salvar esses valores — na próxima vez, os campos podem ficar
+  em branco que o programa se lembra automaticamente.
+
+  Se você selecionou uma planilha Excel, esses valores já vêm
+  dela — não precisa fazer nada.
+
+PASSO 3 — Escolha as curvas (opcional)
+  Na aba Configuração, seção "📈 Curvas ativas", você pode
+  marcar quais curvas participam do ajuste:
+    • MB (Maxwell-Boltzmann) — sempre ativa
+    • Exponencial
+    • Gaussiana 1, 2 e 3
+
+  Se não tiver certeza, deixe como está — as configurações
+  padrão funcionam para a maioria dos casos.
+
+PASSO 4 — Execute
+  Vá para a aba "▶ Executar" e clique em "Iniciar".
+  O programa começa a busca e mostra o progresso no log.
+
+  Isso pode levar de alguns segundos a vários minutos,
+  dependendo das configurações e do seu computador.
+
+  Se quiser parar antes de terminar, clique em "Parar" —
+  o programa salva tudo que já encontrou.
+
+PASSO 5 — Veja os resultados
+  Ao terminar, os melhores ajustes aparecem na aba Resultados.
+  Os arquivos são salvos automaticamente numa pasta chamada
+  "Resultados", criada no mesmo lugar que o NataliaTime.exe.
+
+  Dentro dela você encontrará:
+    • Gráficos (.png) mostrando o ajuste
+    • Um relatório Excel com todos os parâmetros encontrados
+    • Um arquivo .csv com todos os resultados válidos
+
+
+──────────────────────────────────────────────────────────────────
+  O QUE SÃO AS CURVAS?
+──────────────────────────────────────────────────────────────────
+
+O espectro DETOF é modelado como uma soma de até 5 curvas:
+
+  MB (Maxwell-Boltzmann)
+    Representa fragmentos com distribuição térmica de velocidades,
+    típica de moléculas que se desprenderam "devagar". É sempre
+    incluída no ajuste.
+
+  Exponencial
+    Representa fragmentos com distribuição de velocidades que
+    decresce exponencialmente. Comum em processos de dissociação
+    com pouca energia cinética.
+
+  Gaussianas 1, 2 e 3
+    Representam fragmentos com energia de translação bem definida
+    (um pico estreito de velocidade). Cada gaussiana tem uma
+    energia característica E_G1, E_G2 ou E_G3.
+
+O programa encontra os pesos de cada curva (quanto cada uma
+contribui para o total) e as larguras (betas), que descrevem
+quão espalhada cada distribuição é.
+
+
+──────────────────────────────────────────────────────────────────
+  O QUE É O MIGRADOR?
+──────────────────────────────────────────────────────────────────
+
+O Migrador é um programa separado que serve para criar a pasta
+de um experimento no novo formato (CSV + TOML), a partir de
+dados copiados de uma planilha Excel.
+
+Use o Migrador quando:
+  • Você tiver os dados numa planilha mas quiser usar o novo
+    formato no Natalia Time.
+  • Você estiver num computador sem Excel instalado.
+
+Como usar:
+  1. Abra o Migrador.exe
+  2. Defina o nome do experimento (ex: O2_300eV)
+  3. Preencha os parâmetros físicos — pergunte ao responsável
+     pelo laboratório se não souber os valores
+  4. Abra a planilha Excel, copie as colunas de tempo e sinal
+     (Ctrl+C) e cole na área de texto do Migrador (Ctrl+V)
+  5. Clique em "Criar experimento"
+
+O programa vai criar uma pasta com dois arquivos:
+  dados.csv        — os dados que você colou
+  parametros.toml  — os parâmetros físicos do experimento
+
+Depois é só abrir o Natalia Time, clicar em Procurar e
+selecionar o arquivo dados.csv dentro dessa pasta.
+
+
+──────────────────────────────────────────────────────────────────
+  DÚVIDAS FREQUENTES
+──────────────────────────────────────────────────────────────────
+
+O programa não abre.
+  → Verifique se NT_app_tk.py e analise_natalia_time.py estão
+    na mesma pasta que NataliaTime.exe.
+
+Aparece um aviso de "Energias não definidas".
+  → Preencha os campos E_G1, E_G2 e E_G3 na aba Configuração.
+    Se não souber os valores, pergunte ao orientador.
+
+O R² ficou baixo (abaixo de 0.99).
+  → Tente aumentar o número de iterações (aba Configuração,
+    seção Busca aleatória). Ou verifique se as curvas certas
+    estão ativas para o seu experimento.
+
+Não sei quais curvas ativar.
+  → Comece com todas ativas. Depois de ver o resultado, curvas
+    com peso muito baixo (próximo de zero) podem ser desativadas
+    e a busca refeita.
+
+Não sei o valor das energias.
+  → Pergunte ao responsável pelo laboratório ou ao orientador.
+    As energias dependem do tipo de experimento realizado.
+
+══════════════════════════════════════════════════════════════════
+Espero que essa ferramenta ajude na sua pesquisa!
+- Matheus Freitas.

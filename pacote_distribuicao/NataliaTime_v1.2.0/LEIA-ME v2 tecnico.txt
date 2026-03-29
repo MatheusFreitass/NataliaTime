@@ -1,0 +1,221 @@
+══════════════════════════════════════════════════════════════════
+           NATALIA TIME & MIGRADOR — DOCUMENTAÇÃO TÉCNICA
+══════════════════════════════════════════════════════════════════
+
+
+──────────────────────────────────────────────────────────────────
+  VISÃO GERAL
+──────────────────────────────────────────────────────────────────
+
+O Natalia Time realiza o ajuste automático de espectros DETOF de
+fotofragmentação. O modelo teórico é uma soma ponderada de até 5
+componentes de distribuição de velocidades, convoluídas com um
+kernel de Gauss-Hermite (4 nós) para modelar a distribuição de
+velocidades da fonte:
+
+  S(t) = p_mb·MB(t) + p_exp·EXP(t) + p_g1·G1(t) + p_g2·G2(t) + p_g3·G3(t)
+
+com Σpᵢ = 1. A otimização ocorre em duas fases: busca aleatória
+global seguida de refinamento local por Nelder-Mead.
+
+Métrica principal: R² (coeficiente de determinação), calculado
+como 1 − Σ(teo−exp)²/Σ(exp−mean)², replicando a definição da
+planilha Excel original.
+
+
+──────────────────────────────────────────────────────────────────
+  INSTALAÇÃO E DISTRIBUIÇÃO
+──────────────────────────────────────────────────────────────────
+
+Não requer instalação. Os seguintes arquivos devem estar na
+mesma pasta:
+
+  NataliaTime.exe          — executável (Python + dependências bundled)
+  NT_app_tk.py             — interface gráfica (carregada do disco)
+  analise_natalia_time.py  — engine de análise (carregada do disco)
+
+Os dois arquivos .py ficam fora do .exe intencionalmente,
+permitindo atualização sem rebuild. O .exe contém Python 3,
+numpy, scipy, matplotlib, pandas e openpyxl.
+
+
+──────────────────────────────────────────────────────────────────
+  FORMATOS DE ENTRADA
+──────────────────────────────────────────────────────────────────
+
+FORMATO EXCEL (.xlsm / .xlsx)
+  Leitura via openpyxl (data_only=True). A aba é sempre a
+  primeira do arquivo. A linha de início dos dados é detectada
+  automaticamente pela célula "tempo" na coluna A.
+
+  Parâmetros lidos diretamente da planilha:
+    beta_mb   (AA4)  — largura da componente MB
+    e_g3/4/5  (AC6, AD6, AE6) — energias das gaussianas (eV)
+    m_frag    (B14)  — massa do fragmento iônico (u)
+    m_mol     (B13)  — massa da molécula mãe (u)
+    DE        (B5)   — energia de deflexão (eV)
+    D         (B9)   — distância de voo (m)
+    LL        (B11)  — comprimento do tubo (m)
+    I7_NORM   (I7)   — tempo de normalização (ns)
+
+  IMPORTANTE: DE, D e LL são lidos da planilha — não são
+  hardcoded. Planilhas de experimentos distintos com geometrias
+  diferentes produzirão resultados corretos sem reconfiguração.
+
+FORMATO CSV + TOML
+  Alternativa ao Excel. Selecionando o arquivo dados.csv, o
+  código busca parametros.toml na mesma pasta.
+
+  dados.csv — duas colunas (tempo, sinal), separador vírgula,
+              cabeçalho opcional.
+
+  parametros.toml — chaves obrigatórias: beta_mb, m_frag, m_mol,
+                    DE, D, LL, I7_NORM.
+                    Chaves opcionais: e_g3, e_g4, e_g5 (podem
+                    ser gravadas pela interface durante a análise).
+
+  Criado pelo Migrador (ver seção correspondente).
+
+
+──────────────────────────────────────────────────────────────────
+  PARÂMETROS DO MODELO
+──────────────────────────────────────────────────────────────────
+
+PARÂMETROS OTIMIZADOS (buscados automaticamente):
+  beta_exp, beta_g1, beta_g2, beta_g3  — larguras das curvas
+  p_mb, p_exp, p_g1, p_g2, p_g3       — pesos (somam 1)
+
+PARÂMETROS FIXOS (lidos da planilha ou .toml):
+  beta_mb    — fixo, derivado da temperatura do gás na expansão
+  e_g1/2/3   — energias de translação das gaussianas (eV)
+  m_frag     — massa do fragmento detectado (u)
+  m_mol      — massa da molécula mãe (u)
+  DE         — energia de deflexão do espectrômetro (eV)
+  D          — distância fonte–detector (m)
+  LL         — comprimento do tubo de voo (m)
+  I7_NORM    — tempo usado para normalização das amplitudes (ns)
+
+CONSTANTES FÍSICAS HARDCODED (específicas do espectrômetro):
+  DD = 0.8       — diâmetro do detector (m)
+  FMB = 1.7      — fator de escala da componente MB
+  FATOR_ENERGIA = 7837.5
+  FATOR_VELOCIDADE = 16.8
+  H6 = 120000    — canais de velocidade (define resolução da grade)
+  N_VEL = 1492   — canais utilizados
+
+
+──────────────────────────────────────────────────────────────────
+  ALGORITMO DE OTIMIZAÇÃO
+──────────────────────────────────────────────────────────────────
+
+FASE 1 — Busca aleatória global (multiprocessing, spawn):
+  Para cada combinação aleatória de betas dentro dos intervalos
+  definidos, sorteia N combinações de pesos e avalia R² e RMSE.
+  Paralelizado via multiprocessing.Pool com todos os núcleos
+  disponíveis (configurável). Performance típica: ~3500–4000
+  avaliações/s em 24 núcleos.
+
+  Critério de aceitação: R² ≥ SCORE_MINIMO (padrão: 0.99).
+
+FASE 2 — Refinamento Nelder-Mead (scipy.optimize.minimize):
+  Candidatos selecionados por clustering hierárquico no espaço
+  normalizado dos betas (garantindo diversidade) ou por top-N
+  por RMSE. Para cada candidato, executa minimize com método
+  Nelder-Mead, com suporte a reinícios com perturbação para
+  escapar de mínimos locais.
+
+  Opcionalmente, as energias e_g1/2/3 podem ser incluídas como
+  variáveis livres no NM (ENERGIA_NM_LIVRE = True).
+
+PARADA SUAVE:
+  Criar arquivo PARAR.txt na pasta de resultados durante a
+  execução encerra a busca ao fim da rodada corrente.
+
+
+──────────────────────────────────────────────────────────────────
+  CONFIGURAÇÕES RELEVANTES
+──────────────────────────────────────────────────────────────────
+
+Na aba ⚙ Configuração:
+
+  Busca aleatória:
+    ITERACOES_BETA × ITERACOES_PESOS = total de avaliações
+    SCORE_MINIMO  — R² mínimo para aceitar resultado
+    DESVIO_ALVO   — RMSE alvo (meta de qualidade)
+    Semente       — reprodutibilidade (None = aleatório)
+    Slider CPU    — número de processos paralelos
+
+  Nelder-Mead:
+    NM_TOP_CANDIDATOS — candidatos para refinar
+    NM_USAR_CLUSTERS  — diversidade via clustering
+    NM_CLUSTER_LIMIAR — distância para separar clusters (0–1)
+    NM_MAX_REINICIAR  — reinícios com perturbação por candidato
+    ENERGIA_NM_LIVRE  — libera energias como variáveis do NM
+
+  Energias (formato CSV):
+    Checkbox "Gravar" — persiste o valor no parametros.toml
+    Campo vazio       — usa valor gravado anteriormente
+
+
+──────────────────────────────────────────────────────────────────
+  SAÍDAS
+──────────────────────────────────────────────────────────────────
+
+Cada execução gera uma subpasta em Resultados/:
+
+  Resultados/<experimento>_<data>_<hora>/
+    resultados.csv          — todos os resultados com R² ≥ mínimo
+    melhor_resultado.xlsx   — relatório do melhor ajuste
+    graficos/
+      melhor_global.png     — gráfico do melhor resultado global
+      top_001.png ...       — top N por RMSE
+
+Cada gráfico contém:
+  • Painel principal: espectro em escala log com todas as curvas
+  • Painel de resíduos: diferença absoluta ponto a ponto
+  • Tabela lateral: todos os parâmetros do ajuste
+
+
+──────────────────────────────────────────────────────────────────
+  MIGRADOR
+──────────────────────────────────────────────────────────────────
+
+Ferramenta auxiliar para criar experimentos no formato CSV+TOML.
+Não requer instalação — standalone .exe.
+
+Parâmetros de entrada:
+  T gás (K)    — temperatura de expansão, usada para calcular
+                 beta_mb via: sqrt((4.04×10⁵ × (300/T) × m_mol) / 2)
+  m_frag       — massa do fragmento (u)
+  m_mol        — massa da molécula mãe (u)
+  DE           — energia de deflexão (eV)
+  D            — distância de voo (m)
+  LL           — comprimento do tubo (m)
+  I7_NORM      — tempo de normalização (ns)
+
+Os dados experimentais são colados diretamente da planilha
+(separador Tab, padrão do Excel). O arquivo parametros.toml
+gerado inclui comentário com o T e beta_mb calculado para
+rastreabilidade. Energias não são pedidas pelo Migrador —
+são definidas na interface do Natalia Time e podem ser gravadas
+no .toml via checkbox.
+
+
+──────────────────────────────────────────────────────────────────
+  OBSERVAÇÕES
+──────────────────────────────────────────────────────────────────
+
+• O Natalia Time foi validado contra a planilha Excel original
+  (rodada de referência O2 300eV): ΔR² < 2×10⁻⁵.
+
+• O R² obtido pelo Python pode diferir do Excel se os parâmetros
+  geométricos (DE, D, LL) na planilha diferirem dos valores de
+  referência. Verifique sempre as células B5, B9 e B11.
+
+• Em execuções longas dentro de pastas sincronizadas (OneDrive,
+  Dropbox), recomenda-se pausar a sincronização para evitar
+  conflitos de escrita nos arquivos de resultado.
+
+• Para reprodutibilidade, defina SEMENTE com um valor inteiro.
+
+══════════════════════════════════════════════════════════════════
