@@ -1013,25 +1013,25 @@ def _processar_rodada(args):
             pesos["p_g3"], pesos["p_g4"], pesos["p_g5"],
             fixos_rodada, amps_beta
         )
-        af4            = calcular_af4(sinal_exp, sinal_teo)
-        rmse, m_r, b_r = calcular_rmse(tempos_exp, sinal_exp, sinal_teo)
-        valido         = af4 >= SCORE_MINIMO
-
-        if valido:
-            validos += 1
-            if rmse <= DESVIO_ALVO:
-                alta_precisao += 1
+        af4    = calcular_af4(sinal_exp, sinal_teo)
+        valido = af4 >= SCORE_MINIMO
 
         ml = melhor_local
         if valido:
-            if not ml["valido"] or rmse < ml["rmse"] or                (rmse == ml["rmse"] and af4 > ml["af4"]):
+            # RMSE só calculado quando R² passa — evita custo desnecessário
+            rmse, m_r, b_r = calcular_rmse(tempos_exp, sinal_exp, sinal_teo)
+            validos += 1
+            if rmse <= DESVIO_ALVO:
+                alta_precisao += 1
+            if not ml["valido"] or rmse < ml["rmse"] or \
+                    (rmse == ml["rmse"] and af4 > ml["af4"]):
                 melhor_local = {"af4": af4, "rmse": rmse,
                                 "m_reta": m_r, "b_reta": b_r,
                                 "valido": True, "pesos": dict(pesos)}
         else:
             if not ml["valido"] and af4 > ml["af4"]:
-                melhor_local = {"af4": af4, "rmse": rmse,
-                                "m_reta": m_r, "b_reta": b_r,
+                melhor_local = {"af4": af4, "rmse": 99999,
+                                "m_reta": 0.0, "b_reta": 0.0,
                                 "valido": False, "pesos": dict(pesos)}
 
     return {
