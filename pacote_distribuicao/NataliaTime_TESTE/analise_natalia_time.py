@@ -27,6 +27,7 @@ ESTRUTURA:
 # SEÇÃO 1 — IMPORTAÇÕES E UTILITÁRIOS
 # =============================================================================
 
+import sys
 import os
 import datetime
 import multiprocessing as mp
@@ -34,6 +35,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+
+# Garante UTF-8 no stdout mesmo em ambiente Windows com cp1252
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 
 def br(valor, decimais=6):
