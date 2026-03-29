@@ -390,6 +390,13 @@ class NTApp(ctk.CTk):
         centro = ctk.CTkFrame(scroll, fg_color="transparent")
         centro.pack(pady=(30, 0), padx=80, fill="x")
 
+        if self._logo_pil is not None:
+            h_logo = 78
+            w_logo = int(h_logo * self._logo_pil.width / self._logo_pil.height)
+            self._logo_img_inicio = ctk.CTkImage(self._logo_pil, size=(w_logo, h_logo))
+            ctk.CTkLabel(centro, image=self._logo_img_inicio, text="",
+                         fg_color="transparent").pack(pady=(0, 14))
+
         ctk.CTkLabel(centro, text="Natalia Time", font=F_TITLE,
                      text_color=AZUL).pack()
         ctk.CTkLabel(centro, text="Ajuste automático de espectros DETOF de fotofragmentação",
