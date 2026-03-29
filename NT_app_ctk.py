@@ -287,6 +287,17 @@ class NTApp(ctk.CTk):
         self._build_topbar()
         self._build_tabs()
 
+    # ── Logo ───────────────────────────────────────────────────────────────────
+    @staticmethod
+    def _carregar_logo():
+        if not os.path.isfile(LOGO_PATH):
+            return None
+        try:
+            from PIL import Image as _PImg
+            return _PImg.open(LOGO_PATH)
+        except Exception:
+            return None
+
     # ── Header ─────────────────────────────────────────────────────────────────
     def _build_header(self):
         hdr = ctk.CTkFrame(self, fg_color=BG2, corner_radius=0, height=52)
