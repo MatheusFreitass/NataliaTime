@@ -308,6 +308,14 @@ class NTApp(ctk.CTk):
         line = ctk.CTkFrame(hdr, fg_color=BORDA, height=1, corner_radius=0)
         line.pack(side="bottom", fill="x")
 
+        # Logo LMS — lado direito do header
+        if self._logo_pil is not None:
+            h_logo = 34
+            w_logo = int(h_logo * self._logo_pil.width / self._logo_pil.height)
+            self._logo_img_hdr = ctk.CTkImage(self._logo_pil, size=(w_logo, h_logo))
+            ctk.CTkLabel(hdr, image=self._logo_img_hdr, text="",
+                         fg_color="transparent").pack(side="right", padx=16)
+
         inner = ctk.CTkFrame(hdr, fg_color="transparent")
         inner.pack(side="left", padx=18, fill="y")
 
