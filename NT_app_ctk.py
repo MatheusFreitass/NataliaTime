@@ -1408,10 +1408,18 @@ class NTApp(ctk.CTk):
                              checkmark_color="white", fg_color=ROXO,
                              hover_color="#6e40c9").pack(side="left", padx=(6, 0), pady=3)
 
+            def _fmt(val, fmt):
+                return format(val, fmt) if val else "—"
+
             r2_str   = f"R²={run.get('r2', 0):.4f}"
             rmse_str = f"RMSE={run.get('rmse', 0):.4f}"
+            b_exp    = f"βEXP={_fmt(run.get('beta_exp'), '.0f')}"
+            b_g1     = f"βG1={_fmt(run.get('beta_g1'),  '.0f')}"
+            b_g2     = f"βG2={_fmt(run.get('beta_g2'),  '.0f')}"
+            b_g3     = f"βG3={_fmt(run.get('beta_g3'),  '.0f')}"
             ctk.CTkLabel(row,
-                          text=f"  {run.get('rodada', '?')}    {r2_str}    {rmse_str}",
+                          text=f"  {run.get('rodada', '?')}    {r2_str}    {rmse_str}"
+                               f"    {b_exp}    {b_g1}    {b_g2}    {b_g3}",
                           font=F_MONO_S, text_color=TEXTO,
                           anchor="w").pack(side="left", padx=4, pady=3, fill="x", expand=True)
 
