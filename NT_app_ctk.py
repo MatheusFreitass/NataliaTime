@@ -275,13 +275,14 @@ class NTApp(ctk.CTk):
         self.minsize(820, 620)
         self.configure(fg_color=BG)
 
-        self.rodando      = False
-        self.proc_ref     = None
-        self.ultima_pasta = None
-        self.sequencia    = []
-        self._log_q       = None
-        self._res_q       = None
-        self._logo_pil    = self._carregar_logo()
+        self.rodando        = False
+        self.proc_ref       = None
+        self.ultima_pasta   = None
+        self.sequencia      = []
+        self._log_q         = None
+        self._res_q         = None
+        self._logo_pil      = self._carregar_logo()
+        self._sel_historico = {}   # pasta → BooleanVar (seleção para comparação)
 
         self._build_header()
         self._build_topbar()
