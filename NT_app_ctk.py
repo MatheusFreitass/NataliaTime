@@ -1420,61 +1420,62 @@ class NTApp(ctk.CTk):
         """Lê as rodadas válidas da tabela completa do melhor_resultado.xlsx."""
         try:
             from openpyxl import load_workbook
-            wb   = load_workbook(path, data_only=True, read_only=True)
-            ws   = wb.active
-            hmap = {}
-            hrow = None
-            for row in ws.iter_rows(values_only=True):
-                if row and row[0] == "Rodada":
-                    hrow = True
-                    for j, cell in enumerate(row):
-                        if cell is not None:
-                            hmap[str(cell)] = j
-                    break
-            if not hrow:
-                wb.close()
-                return []
+            wb  = load_workbook(path, data_only=True, read_only=True)
+            ws  = wb.active
 
             col_map = {
-                "Rodada":            "rodada",
-                "R²":                "r2",
-                "RMSE":              "rmse",
-                "Peso MB":           "p_mb",
-                "Peso Exp":          "p_exp",
-                "Peso G1":           "p_g1",
-                "Peso G2":           "p_g2",
-                "Peso G3":           "p_g3",
-                "Beta Exp":          "beta_exp",
-                "Beta G1":           "beta_g1",
-                "Beta G2":           "beta_g2",
-                "Beta G3":           "beta_g3",
-                "Energia G1 (eV)":   "e_g1",
-                "Energia G2 (eV)":   "e_g2",
-                "Energia G3 (eV)":   "e_g3",
+                "Rodada":          "rodada",
+                "R²":              "r2",
+                "RMSE":            "rmse",
+                "Peso MB":         "p_mb",
+                "Peso Exp":        "p_exp",
+                "Peso G1":         "p_g1",
+                "Peso G2":         "p_g2",
+                "Peso G3":         "p_g3",
+                "Beta Exp":        "beta_exp",
+                "Beta G1":         "beta_g1",
+                "Beta G2":         "beta_g2",
+                "Beta G3":         "beta_g3",
+                "Energia G1 (eV)": "e_g1",
+                "Energia G2 (eV)": "e_g2",
+                "Energia G3 (eV)": "e_g3",
             }
-            idx_status = hmap.get("Status")
-            runs = []
-            found_header = False
+
+            hmap       = {}
+            idx_status = None
+            runs       = []
+            header_found = False
+
+            # Passagem única — encontra header e lê dados no mesmo loop
             for row in ws.iter_rows(values_only=True):
-                if not found_header:
-                    if row and row[0] == "Rodada":
-                        found_header = True
+                if not row:
                     continue
-                if not row or row[0] is None:
+                if not header_found:
+                    if row[0] == "Rodada":
+                        header_found = True
+                        for j, cell in enumerate(row):
+                            if cell is not None:
+                                hmap[str(cell)] = j
+                        idx_status = hmap.get("Status")
+                    continue
+
+                if row[0] is None:
                     continue
                 if idx_status is not None and row[idx_status] != "VÁLIDO":
                     continue
+
                 d = {"nome": f"{pasta_nome} / {row[hmap['Rodada']]}"}
                 for col_name, key in col_map.items():
                     idx = hmap.get(col_name)
-                    if idx is not None and row[idx] is not None:
+                    if idx is not None and idx < len(row) and row[idx] is not None:
                         try:
-                            d[key] = float(row[idx]) if key != "rodada" else row[idx]
+                            d[key] = row[idx] if key == "rodada" else float(row[idx])
                         except (ValueError, TypeError):
                             d[key] = row[idx]
                 runs.append(d)
                 if len(runs) >= max_runs:
                     break
+
             wb.close()
             return runs
         except Exception:
