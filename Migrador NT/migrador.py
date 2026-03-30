@@ -180,6 +180,9 @@ class MigradorApp(tk.Tk):
             lbl = _lbl(r, f"{rotulo}:"); lbl.config(width=22, anchor="w"); lbl.pack(side="left")
             e = _entry(r, width=12, default=padrao); e.pack(side="left", padx=(4, 10))
             _lbl(r, tooltip, fg=TEXTO2).pack(side="left")
+
+
+            
             self.e_params[chave] = e
 
         tk.Label(s1, text="Beta_MB calculado automaticamente a partir de T e m molécula mãe.",
