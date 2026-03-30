@@ -399,7 +399,7 @@ class NTApp(ctk.CTk):
 
         ctk.CTkLabel(centro, text="Natalia Time", font=F_TITLE,
                      text_color=AZUL).pack()
-        ctk.CTkLabel(centro, text="Ajuste automático de espectros DETOF de fotofragmentação",
+        ctk.CTkLabel(centro, text="Ajuste automático de espectros DETOF de fragmentação por impacto de elétron",
                      font=ctk.CTkFont("Segoe UI", 11),
                      text_color=TEXTO2).pack(pady=(2, 28))
 
