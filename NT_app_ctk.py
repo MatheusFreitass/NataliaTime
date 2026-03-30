@@ -1523,6 +1523,23 @@ class NTApp(ctk.CTk):
         except Exception:
             return None
 
+    @staticmethod
+    def _encontrar_png(d):
+        """Localiza o PNG correspondente a um resultado."""
+        pasta  = d.get("pasta", "")
+        rodada = d.get("rodada")
+        if not pasta or not os.path.isdir(pasta):
+            return None
+        if rodada is None:
+            # Melhor resultado global
+            pngs = glob.glob(os.path.join(pasta, "*_melhor_global.png"))
+            return pngs[0] if pngs else None
+        else:
+            rod_str = str(rodada)
+            rod_fmt = rod_str.zfill(4) if rod_str.isdigit() else rod_str
+            pngs = glob.glob(os.path.join(pasta, "graficos_rodadas", f"rod{rod_fmt}_*.png"))
+            return pngs[0] if pngs else None
+
     def _janela_comparacao(self, dados):
         import numpy as np
         import matplotlib.pyplot as plt
@@ -1530,7 +1547,8 @@ class NTApp(ctk.CTk):
 
         win = ctk.CTkToplevel(self)
         win.title("Comparação de resultados")
-        win.geometry("980x660")
+        win.geometry("1050x900")
+        win.resizable(True, True)
         win.configure(fg_color=BG)
         win.grab_set()
 
