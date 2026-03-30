@@ -1478,17 +1478,17 @@ class NTApp(ctk.CTk):
                 for col_name, key in col_map.items():
                     idx = hmap.get(col_name)
                     if idx is not None and idx < len(row) and row[idx] is not None:
-                        try:
-                            if key == "rodada":
+                        if key == "rodada":
                             raw = row[idx]
                             try:
                                 d[key] = int(float(raw))
                             except (ValueError, TypeError):
                                 d[key] = str(raw)  # NM1, NM2, etc.
                         else:
-                            d[key] = float(row[idx])
-                        except (ValueError, TypeError):
-                            d[key] = row[idx]
+                            try:
+                                d[key] = float(row[idx])
+                            except (ValueError, TypeError):
+                                d[key] = row[idx]
                 runs.append(d)
                 if len(runs) >= max_runs:
                     break
