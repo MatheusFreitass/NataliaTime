@@ -1361,26 +1361,23 @@ class NTApp(ctk.CTk):
     # ── Comparação ─────────────────────────────────────────────────────────────
 
     def _abrir_comparacao(self):
-        pastas = [p for p, v in self._sel_historico.items() if v.get()]
-        if len(pastas) < 2:
+        selecionados = [(k, item) for k, item in self._sel_historico.items()
+                        if item["var"].get()]
+        if len(selecionados) < 2:
             return
 
-        dados = []
+        dados  = []
         falhas = []
-        for pasta in pastas:
-            xlsx = glob.glob(os.path.join(pasta, "*.xlsx"))
-            if not xlsx:
-                falhas.append(os.path.basename(pasta))
-                continue
-            d = self._ler_resultado_xlsx(xlsx[0], os.path.basename(pasta))
+        for key, item in selecionados:
+            d = item["getter"]()
             if d:
                 dados.append(d)
             else:
-                falhas.append(os.path.basename(pasta))
+                falhas.append(str(key[1] if len(key) > 1 else key))
 
         if falhas:
             messagebox.showwarning("Comparação",
-                f"Não foi possível ler resultado de:\n" + "\n".join(falhas))
+                "Não foi possível ler resultado de:\n" + "\n".join(falhas))
         if len(dados) < 2:
             return
 
