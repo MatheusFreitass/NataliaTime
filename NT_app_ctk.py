@@ -1328,6 +1328,236 @@ class NTApp(ctk.CTk):
                           lambda x=xlsx[0]: os.startfile(x), width=80).pack(side="left")
 
 
+    # ── Comparação ─────────────────────────────────────────────────────────────
+
+    def _abrir_comparacao(self):
+        pastas = [p for p, v in self._sel_historico.items() if v.get()]
+        if len(pastas) < 2:
+            return
+
+        dados = []
+        falhas = []
+        for pasta in pastas:
+            xlsx = glob.glob(os.path.join(pasta, "*.xlsx"))
+            if not xlsx:
+                falhas.append(os.path.basename(pasta))
+                continue
+            d = self._ler_resultado_xlsx(xlsx[0], os.path.basename(pasta))
+            if d:
+                dados.append(d)
+            else:
+                falhas.append(os.path.basename(pasta))
+
+        if falhas:
+            messagebox.showwarning("Comparação",
+                f"Não foi possível ler resultado de:\n" + "\n".join(falhas))
+        if len(dados) < 2:
+            return
+
+        self._janela_comparacao(dados)
+
+    @staticmethod
+    def _ler_resultado_xlsx(path, nome):
+        """Lê parâmetros do melhor resultado a partir do melhor_resultado.xlsx."""
+        try:
+            from openpyxl import load_workbook
+            wb = load_workbook(path, data_only=True, read_only=True)
+            ws = wb.active
+            mapa = {
+                "R²":                      "r2",
+                "RMSE":                    "rmse",
+                "Peso Maxwell-Boltzmann":  "p_mb",
+                "Peso Exponencial":        "p_exp",
+                "Peso Gaussiana 1":        "p_g1",
+                "Peso Gaussiana 2":        "p_g2",
+                "Peso Gaussiana 3":        "p_g3",
+                "Beta Exponencial":        "beta_exp",
+                "Beta Gaussiana 1":        "beta_g1",
+                "Beta Gaussiana 2":        "beta_g2",
+                "Beta Gaussiana 3":        "beta_g3",
+                "Energia Gaussiana 1 (eV)":"e_g1",
+                "Energia Gaussiana 2 (eV)":"e_g2",
+                "Energia Gaussiana 3 (eV)":"e_g3",
+            }
+            d = {"nome": nome}
+            for row in ws.iter_rows(values_only=True):
+                if row and row[0] in mapa:
+                    d[mapa[row[0]]] = float(row[1]) if row[1] is not None else 0.0
+            wb.close()
+            return d if len(d) > 1 else None
+        except Exception:
+            return None
+
+    def _janela_comparacao(self, dados):
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+        win = ctk.CTkToplevel(self)
+        win.title("Comparação de resultados")
+        win.geometry("980x660")
+        win.configure(fg_color=BG)
+        win.grab_set()
+
+        ctk.CTkLabel(win, text="Comparação de resultados", font=F_H2,
+                     text_color=AZUL).pack(anchor="w", padx=20, pady=(14, 4))
+
+        # ── Tabela de parâmetros ──────────────────────────────────────────────
+        tbl_frame = ctk.CTkScrollableFrame(win, fg_color=BG2, corner_radius=8,
+                                            height=210, scrollbar_button_color=BG3)
+        tbl_frame.pack(fill="x", padx=20, pady=(0, 10))
+
+        colunas = ["Parâmetro"] + [d["nome"] for d in dados]
+        linhas = [
+            ("R²",              "r2"),
+            ("RMSE",            "rmse"),
+            ("p_MB (%)",        "p_mb",  True),
+            ("p_EXP (%)",       "p_exp", True),
+            ("p_G1 (%)",        "p_g1",  True),
+            ("p_G2 (%)",        "p_g2",  True),
+            ("p_G3 (%)",        "p_g3",  True),
+            ("β_EXP",           "beta_exp"),
+            ("β_G1",            "beta_g1"),
+            ("β_G2",            "beta_g2"),
+            ("β_G3",            "beta_g3"),
+            ("E_G1 (eV)",       "e_g1"),
+            ("E_G2 (eV)",       "e_g2"),
+            ("E_G3 (eV)",       "e_g3"),
+        ]
+
+        # Cabeçalho
+        for j, col in enumerate(colunas):
+            ctk.CTkLabel(tbl_frame, text=col, font=ctk.CTkFont("Segoe UI", 10, "bold"),
+                         text_color=AZUL, width=max(160, 120),
+                         anchor="w" if j == 0 else "center").grid(
+                row=0, column=j, padx=(4, 8), pady=(6, 2), sticky="w")
+
+        for i, spec in enumerate(linhas, start=1):
+            nome_lbl = spec[0]
+            chave    = spec[1]
+            pct      = len(spec) > 2 and spec[2]
+            bg_row   = BG3 if i % 2 == 0 else BG2
+
+            ctk.CTkLabel(tbl_frame, text=nome_lbl, font=F_SMALL,
+                         text_color=TEXTO2, width=160, anchor="w",
+                         fg_color=bg_row).grid(row=i, column=0, padx=(4, 8), pady=1, sticky="w")
+
+            for j, d in enumerate(dados, start=1):
+                val = d.get(chave, 0) or 0
+                if pct:
+                    txt = f"{val*100:.1f}%"
+                elif chave in ("r2", "rmse"):
+                    txt = f"{val:.6f}"
+                elif chave.startswith("beta"):
+                    txt = f"{val:.1f}"
+                elif chave.startswith("e_g"):
+                    txt = f"{val:.3f}" if val else "—"
+                else:
+                    txt = f"{val}"
+
+                ctk.CTkLabel(tbl_frame, text=txt, font=F_MONO_S,
+                             text_color=TEXTO, width=120, anchor="center",
+                             fg_color=bg_row).grid(row=i, column=j, padx=(0, 8), pady=1)
+
+        # ── Gráfico de barras empilhadas ──────────────────────────────────────
+        nomes_exp = [d["nome"] for d in dados]
+        chaves_p  = ["p_mb", "p_exp", "p_g1", "p_g2", "p_g3"]
+        labels_p  = ["MB", "EXP", "G1", "G2", "G3"]
+        cores_p   = ["#9b59b6", "#2980b9", "#27ae60", "#e67e22", "#e74c3c"]
+
+        fig, ax = plt.subplots(figsize=(9, max(1.8, len(dados) * 0.7 + 0.6)))
+        fig.patch.set_facecolor(BG2)
+        ax.set_facecolor(BG2)
+        ax.tick_params(colors=TEXTO2, labelsize=8)
+        for spine in ax.spines.values():
+            spine.set_edgecolor(BORDA)
+
+        lefts = np.zeros(len(dados))
+        for chave, label, cor in zip(chaves_p, labels_p, cores_p):
+            vals = np.array([d.get(chave, 0) or 0 for d in dados])
+            bars = ax.barh(nomes_exp, vals * 100, left=lefts * 100,
+                           color=cor, label=label, height=0.55)
+            for bar, v in zip(bars, vals):
+                if v > 0.04:
+                    ax.text(bar.get_x() + bar.get_width() / 2,
+                            bar.get_y() + bar.get_height() / 2,
+                            f"{v*100:.1f}%", ha="center", va="center",
+                            fontsize=8, color="white", fontweight="bold")
+            lefts += vals
+
+        ax.set_xlabel("Contribuição (%)", color=TEXTO2, fontsize=9)
+        ax.set_xlim(0, 100)
+        ax.xaxis.label.set_color(TEXTO2)
+        ax.tick_params(axis="y", labelcolor=TEXTO)
+        lgd = ax.legend(loc="lower right", fontsize=8,
+                        facecolor=BG3, edgecolor=BORDA, labelcolor=TEXTO)
+        fig.tight_layout(pad=0.8)
+
+        canvas = FigureCanvasTkAgg(fig, master=win)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill="both", expand=True, padx=20, pady=(0, 8))
+
+        # ── Botão exportar ────────────────────────────────────────────────────
+        bf = ctk.CTkFrame(win, fg_color="transparent")
+        bf.pack(pady=(0, 14))
+        btn_ghost(bf, "💾  Exportar Excel", lambda: self._exportar_comparacao(dados), width=160).pack(side="left", padx=(0, 10))
+        btn_ghost(bf, "Fechar", win.destroy, width=100).pack(side="left")
+
+    def _exportar_comparacao(self, dados):
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill, Alignment
+
+        path = filedialog.asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Excel", "*.xlsx")],
+            initialfile="comparacao_resultados.xlsx",
+            title="Salvar comparação")
+        if not path:
+            return
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Comparação"
+
+        cab_font = Font(bold=True, color="FFFFFF")
+        cab_fill = PatternFill("solid", fgColor="2C3E50")
+
+        linhas = [
+            ("R²",              "r2",       False),
+            ("RMSE",            "rmse",     False),
+            ("p_MB",            "p_mb",     True),
+            ("p_EXP",           "p_exp",    True),
+            ("p_G1",            "p_g1",     True),
+            ("p_G2",            "p_g2",     True),
+            ("p_G3",            "p_g3",     True),
+            ("β_EXP",           "beta_exp", False),
+            ("β_G1",            "beta_g1",  False),
+            ("β_G2",            "beta_g2",  False),
+            ("β_G3",            "beta_g3",  False),
+            ("E_G1 (eV)",       "e_g1",     False),
+            ("E_G2 (eV)",       "e_g2",     False),
+            ("E_G3 (eV)",       "e_g3",     False),
+        ]
+
+        # Cabeçalho
+        ws.cell(1, 1, "Parâmetro").font = cab_font
+        ws.cell(1, 1).fill = cab_fill
+        for j, d in enumerate(dados, start=2):
+            c = ws.cell(1, j, d["nome"])
+            c.font = cab_font
+            c.fill = cab_fill
+            c.alignment = Alignment(horizontal="center")
+
+        for i, (nome_lbl, chave, pct) in enumerate(linhas, start=2):
+            ws.cell(i, 1, nome_lbl)
+            for j, d in enumerate(dados, start=2):
+                val = d.get(chave, 0) or 0
+                ws.cell(i, j, round(val * 100, 2) if pct else val)
+
+        wb.save(path)
+        messagebox.showinfo("Exportar", f"Comparação salva em:\n{path}")
+
+
 if __name__ == "__main__":
     app = NTApp()
     app.mainloop()
