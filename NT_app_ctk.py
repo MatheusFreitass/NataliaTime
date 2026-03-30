@@ -611,13 +611,12 @@ class NTApp(ctk.CTk):
         cb_row = ctk.CTkFrame(body3, fg_color="transparent")
         cb_row.pack(fill="x", pady=(2, 8))
 
-        # MB sempre ativa
-        mb_cb = ctk.CTkCheckBox(cb_row, text="Maxwell-Boltzmann",
-                                 checkbox_width=16, checkbox_height=16,
-                                 checkmark_color="white", fg_color=AZUL,
-                                 hover_color=AZUL2, font=F_UI, state="disabled")
-        mb_cb.select()
-        mb_cb.pack(side="left", padx=(0, 16))
+        self.v_ativa_mb = tk.BooleanVar(value=True)
+        ctk.CTkCheckBox(cb_row, text="Maxwell-Boltzmann",
+                        variable=self.v_ativa_mb,
+                        checkbox_width=16, checkbox_height=16,
+                        checkmark_color="white", fg_color=AZUL,
+                        hover_color=AZUL2, font=F_UI).pack(side="left", padx=(0, 16))
 
         self.v_ativa_exp = tk.BooleanVar(value=True)
         self.v_ativa_g1  = tk.BooleanVar(value=True)
