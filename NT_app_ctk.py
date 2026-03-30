@@ -1283,6 +1283,7 @@ class NTApp(ctk.CTk):
     def _atualizar_historico(self):
         for w in self.frame_hist.winfo_children():
             w.destroy()
+        self._sel_historico.clear()
 
         if not os.path.isdir(RESULTADOS_DIR):
             ctk.CTkLabel(self.frame_hist, text="Nenhum resultado ainda.",
@@ -1296,13 +1297,27 @@ class NTApp(ctk.CTk):
                           font=F_UI, text_color=TEXTO2).pack(pady=20)
             return
 
+        def _on_sel_change(*_):
+            n = sum(1 for v in self._sel_historico.values() if v.get())
+            self.btn_comparar.configure(state="normal" if n >= 2 else "disabled")
+
         for pasta in pastas:
             row = ctk.CTkFrame(self.frame_hist, fg_color=BG2, corner_radius=6,
                                 border_width=1, border_color=BORDA)
             row.pack(fill="x", pady=3)
-            ctk.CTkLabel(row, text=f"  {os.path.basename(pasta)}",
+
+            v = tk.BooleanVar(value=False)
+            v.trace_add("write", _on_sel_change)
+            self._sel_historico[pasta] = v
+            ctk.CTkCheckBox(row, text="", variable=v, width=28,
+                             checkbox_width=16, checkbox_height=16,
+                             checkmark_color="white", fg_color=AZUL,
+                             hover_color=AZUL2).pack(side="left", padx=(8, 0), pady=8)
+
+            ctk.CTkLabel(row, text=os.path.basename(pasta),
                           font=F_MONO_S, text_color=AZUL,
-                          anchor="w").pack(side="left", padx=4, pady=8, fill="x", expand=True)
+                          anchor="w").pack(side="left", padx=6, pady=8, fill="x", expand=True)
+
             bf = ctk.CTkFrame(row, fg_color="transparent")
             bf.pack(side="right", padx=8, pady=4)
             btn_ghost(bf, "📁 Abrir",
