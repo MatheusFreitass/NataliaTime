@@ -264,14 +264,6 @@ class MigradorApp(tk.Tk):
 
         self._nb_dados = nb
 
-        # ── Botoes ────────────────────────────────────────────────────────────
-        bf = tk.Frame(self, bg=BG); bf.pack(pady=10)
-        _btn(bf, "Criar experimento", self._criar, cor=VERDE).pack(side="left", padx=8)
-        _btn(bf, "Limpar",            self._limpar, cor=BG3).pack(side="left", padx=4)
-
-        self.lbl_status = tk.Label(self, text="", bg=BG, fg=TEXTO2, font=FONTE)
-        self.lbl_status.pack(pady=(0, 8))
-
     # ── Acoes ─────────────────────────────────────────────────────────────────
 
     def _procurar_destino(self):
