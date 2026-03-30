@@ -1383,6 +1383,103 @@ class NTApp(ctk.CTk):
 
         self._janela_comparacao(dados)
 
+    def _carregar_runs_frame(self, pasta, xlsx_path, frame, on_sel_change):
+        """Popula o sub-frame com as rodadas válidas do experimento."""
+        for w in frame.winfo_children():
+            w.destroy()
+
+        runs = self._ler_runs_xlsx(xlsx_path, os.path.basename(pasta))
+        if not runs:
+            ctk.CTkLabel(frame, text="Nenhuma rodada válida encontrada.",
+                          font=F_SMALL, text_color=TEXTO2).pack(anchor="w", padx=4, pady=4)
+            return
+
+        for run in runs:
+            row = ctk.CTkFrame(frame, fg_color=BG3, corner_radius=4)
+            row.pack(fill="x", pady=1)
+
+            v = tk.BooleanVar(value=False)
+            v.trace_add("write", on_sel_change)
+            key = ("run", pasta, run.get("rodada", ""))
+            self._sel_historico[key] = {"var": v, "getter": lambda r=run: r}
+
+            ctk.CTkCheckBox(row, text="", variable=v, width=24,
+                             checkbox_width=14, checkbox_height=14,
+                             checkmark_color="white", fg_color=ROXO,
+                             hover_color="#6e40c9").pack(side="left", padx=(6, 0), pady=3)
+
+            r2_str   = f"R²={run.get('r2', 0):.4f}"
+            rmse_str = f"RMSE={run.get('rmse', 0):.4f}"
+            ctk.CTkLabel(row,
+                          text=f"  {run.get('rodada', '?')}    {r2_str}    {rmse_str}",
+                          font=F_MONO_S, text_color=TEXTO,
+                          anchor="w").pack(side="left", padx=4, pady=3, fill="x", expand=True)
+
+    @staticmethod
+    def _ler_runs_xlsx(path, pasta_nome, max_runs=15):
+        """Lê as rodadas válidas da tabela completa do melhor_resultado.xlsx."""
+        try:
+            from openpyxl import load_workbook
+            wb   = load_workbook(path, data_only=True, read_only=True)
+            ws   = wb.active
+            hmap = {}
+            hrow = None
+            for row in ws.iter_rows(values_only=True):
+                if row and row[0] == "Rodada":
+                    hrow = True
+                    for j, cell in enumerate(row):
+                        if cell is not None:
+                            hmap[str(cell)] = j
+                    break
+            if not hrow:
+                wb.close()
+                return []
+
+            col_map = {
+                "Rodada":            "rodada",
+                "R²":                "r2",
+                "RMSE":              "rmse",
+                "Peso MB":           "p_mb",
+                "Peso Exp":          "p_exp",
+                "Peso G1":           "p_g1",
+                "Peso G2":           "p_g2",
+                "Peso G3":           "p_g3",
+                "Beta Exp":          "beta_exp",
+                "Beta G1":           "beta_g1",
+                "Beta G2":           "beta_g2",
+                "Beta G3":           "beta_g3",
+                "Energia G1 (eV)":   "e_g1",
+                "Energia G2 (eV)":   "e_g2",
+                "Energia G3 (eV)":   "e_g3",
+            }
+            idx_status = hmap.get("Status")
+            runs = []
+            found_header = False
+            for row in ws.iter_rows(values_only=True):
+                if not found_header:
+                    if row and row[0] == "Rodada":
+                        found_header = True
+                    continue
+                if not row or row[0] is None:
+                    continue
+                if idx_status is not None and row[idx_status] != "VÁLIDO":
+                    continue
+                d = {"nome": f"{pasta_nome} / {row[hmap['Rodada']]}"}
+                for col_name, key in col_map.items():
+                    idx = hmap.get(col_name)
+                    if idx is not None and row[idx] is not None:
+                        try:
+                            d[key] = float(row[idx]) if key != "rodada" else row[idx]
+                        except (ValueError, TypeError):
+                            d[key] = row[idx]
+                runs.append(d)
+                if len(runs) >= max_runs:
+                    break
+            wb.close()
+            return runs
+        except Exception:
+            return []
+
     @staticmethod
     def _ler_resultado_xlsx(path, nome):
         """Lê parâmetros do melhor resultado a partir do melhor_resultado.xlsx."""
