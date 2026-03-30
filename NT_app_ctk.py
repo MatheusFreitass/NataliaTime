@@ -1552,11 +1552,21 @@ class NTApp(ctk.CTk):
         win.configure(fg_color=BG)
         win.grab_set()
 
-        ctk.CTkLabel(win, text="Comparação de resultados", font=F_H2,
+        # ── Botão exportar (bottom, packed before expand widget) ──────────────
+        bf = ctk.CTkFrame(win, fg_color="transparent")
+        bf.pack(side="bottom", pady=(0, 14))
+        btn_ghost(bf, "💾  Exportar Excel", lambda: self._exportar_comparacao(dados), width=160).pack(side="left", padx=(0, 10))
+
+        # ── Container scrollável principal ────────────────────────────────────
+        scroll_main = ctk.CTkScrollableFrame(win, fg_color=BG, corner_radius=0,
+                                             scrollbar_button_color=BG3)
+        scroll_main.pack(fill="both", expand=True, padx=0, pady=0)
+
+        ctk.CTkLabel(scroll_main, text="Comparação de resultados", font=F_H2,
                      text_color=AZUL).pack(anchor="w", padx=20, pady=(14, 4))
 
         # ── Tabela de parâmetros ──────────────────────────────────────────────
-        tbl_frame = ctk.CTkScrollableFrame(win, fg_color=BG2, corner_radius=8,
+        tbl_frame = ctk.CTkScrollableFrame(scroll_main, fg_color=BG2, corner_radius=8,
                                             height=210, scrollbar_button_color=BG3)
         tbl_frame.pack(fill="x", padx=20, pady=(0, 10))
 
