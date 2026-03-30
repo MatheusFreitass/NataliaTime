@@ -1401,7 +1401,7 @@ class NTApp(ctk.CTk):
             v = tk.BooleanVar(value=False)
             v.trace_add("write", on_sel_change)
             key = ("run", pasta, run.get("rodada", ""))
-            self._sel_historico[key] = {"var": v, "getter": lambda r=run: r}
+            self._sel_historico[key] = {"var": v, "getter": lambda r=run, p=pasta: {**r, "pasta": p}}
 
             ctk.CTkCheckBox(row, text="", variable=v, width=24,
                              checkbox_width=14, checkbox_height=14,
