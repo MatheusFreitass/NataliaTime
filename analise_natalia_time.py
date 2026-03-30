@@ -1814,7 +1814,7 @@ def _painel_parametros(ax, params, fixos):
             transform=ax.transAxes, family="monospace")
     ax.text(0.55, 0.74, "Larg.",    fontsize=7.5, va="top", fontweight="bold",
             ha="right", transform=ax.transAxes, family="monospace")
-    ax.text(0.98, 0.74, "Peso",     fontsize=7.5, va="top", fontweight="bold",
+    ax.text(0.98, 0.74, "Peso (%)", fontsize=7.5, va="top", fontweight="bold",
             ha="right", transform=ax.transAxes, family="monospace")
     ax.plot([0, 1], [0.71, 0.71], color="#aaaaaa", lw=0.5, transform=ax.transAxes, clip_on=False)
 
@@ -1828,19 +1828,19 @@ def _painel_parametros(ax, params, fixos):
         cor   = COR_CURVA.get(kp, "black")
         b_val = fixos.get(kb) or params.get(kb, 0)
         p_val = params.get(kp, 0)
-        ax.text(0.05, y, nome,             fontsize=7.5, va="top",
+        ax.text(0.05, y, nome,                    fontsize=7.5, va="top",
                 transform=ax.transAxes, family="monospace", color=cor)
-        ax.text(0.55, y, f"{b_val:.1f}",   fontsize=7.5, va="top", ha="right",
+        ax.text(0.55, y, f"{b_val:.1f}",          fontsize=7.5, va="top", ha="right",
                 transform=ax.transAxes, family="monospace")
-        ax.text(0.98, y, f"{p_val:.6f}",   fontsize=7.5, va="top", ha="right",
+        ax.text(0.98, y, f"{p_val*100:.1f}%",     fontsize=7.5, va="top", ha="right",
                 transform=ax.transAxes, family="monospace", color=cor)
         y -= dy
 
     ax.plot([0, 1], [y + dy*0.3, y + dy*0.3], color="#aaaaaa", lw=0.5, transform=ax.transAxes, clip_on=False)
-    ax.text(0.98, y, f"{soma_p:.6f}", fontsize=7.5, va="top", ha="right",
+    ax.text(0.98, y, f"{soma_p*100:.1f}%", fontsize=7.5, va="top", ha="right",
             transform=ax.transAxes, family="monospace",
             color="#27ae60" if abs(soma_p - 1.0) < 1e-9 else "#e74c3c")
-    ax.text(0.05, y, "Soma",         fontsize=7.5, va="top",
+    ax.text(0.05, y, "Soma",               fontsize=7.5, va="top",
             transform=ax.transAxes, family="monospace")
 
 
