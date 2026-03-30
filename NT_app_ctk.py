@@ -1656,19 +1656,21 @@ class NTApp(ctk.CTk):
                         facecolor=BG3, edgecolor=BORDA, labelcolor=TEXTO)
         fig.tight_layout(pad=0.8)
 
-        canvas = FigureCanvasTkAgg(fig, master=win)
+        fig_h_px = int(fig.get_figheight() * fig.dpi) + 20
+        canvas = FigureCanvasTkAgg(fig, master=scroll_main)
         canvas.draw()
-        canvas.get_tk_widget().pack(fill="both", expand=True, padx=20, pady=(0, 8))
+        canvas.get_tk_widget().pack(fill="x", padx=20, pady=(0, 8))
+        canvas.get_tk_widget().configure(height=fig_h_px)
 
         # ── Gráficos ──────────────────────────────────────────────────────────
         pngs_disponiveis = [(d, self._encontrar_png(d)) for d in dados]
         pngs_disponiveis = [(d, p) for d, p in pngs_disponiveis if p and os.path.isfile(p)]
 
         if pngs_disponiveis:
-            ctk.CTkLabel(win, text="Gráficos", font=F_H2,
+            ctk.CTkLabel(scroll_main, text="Gráficos", font=F_H2,
                          text_color=AZUL).pack(anchor="w", padx=20, pady=(8, 4))
 
-            png_scroll = ctk.CTkScrollableFrame(win, fg_color=BG, corner_radius=0,
+            png_scroll = ctk.CTkScrollableFrame(scroll_main, fg_color=BG, corner_radius=0,
                                                 height=380, scrollbar_button_color=BG3)
             png_scroll.pack(fill="x", padx=20, pady=(0, 8))
 
