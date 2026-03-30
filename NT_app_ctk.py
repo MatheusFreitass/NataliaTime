@@ -194,7 +194,7 @@ INTERVALOS_BETA = {{
 }}
 
 CURVAS_PESO_ATIVAS = {{
-    "p_mb":  True,
+    "p_mb":  {py(cfg['ativa_mb'])},
     "p_exp": {py(cfg['ativa_exp'])},
     "p_g3":  {py(cfg['ativa_g1'])},
     "p_g4":  {py(cfg['ativa_g2'])},
