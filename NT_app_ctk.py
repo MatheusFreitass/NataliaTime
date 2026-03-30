@@ -865,7 +865,11 @@ class NTApp(ctk.CTk):
 
         top = ctk.CTkFrame(tab, fg_color="transparent")
         top.pack(fill="x", padx=16, pady=(12, 8))
-        btn_ghost(top, "🔄  Atualizar histórico", self._atualizar_historico, width=160).pack(side="left")
+        btn_ghost(top, "🔄  Atualizar", self._atualizar_historico, width=120).pack(side="left", padx=(0, 8))
+        self.btn_comparar = btn_primary(top, "⚖  Comparar selecionados",
+                                        self._abrir_comparacao, width=200)
+        self.btn_comparar.pack(side="left")
+        self.btn_comparar.configure(state="disabled")
 
         self.frame_hist = ctk.CTkScrollableFrame(tab, fg_color=BG, corner_radius=0,
                                                   scrollbar_button_color=BG3)
