@@ -704,8 +704,8 @@ class NTApp(ctk.CTk):
         self.e_beta_hi = {}
         labels_beta   = {"exp": "Exponencial", "g1": "Gaussiana 1",
                           "g2": "Gaussiana 2",  "g3": "Gaussiana 3"}
-        defaults_beta = {"exp": (50, 600), "g1": (100, 1200),
-                          "g2": (100, 1200), "g3": (100, 1200)}
+        defaults_beta = {"exp": (50, 5000), "g1": (50, 5000),
+                          "g2": (50, 5000), "g3": (50, 5000)}
 
         hdr_row = ctk.CTkFrame(body5, fg_color="transparent")
         hdr_row.pack(fill="x", pady=(0, 4))

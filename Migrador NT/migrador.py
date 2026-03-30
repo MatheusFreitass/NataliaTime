@@ -156,10 +156,10 @@ class MigradorApp(tk.Tk):
         campos = [
             ("T_gas",    "T_gas (K)",              "Temperatura do gás de expansão",                  "300"),
             ("m_frag",   "m fragmento",             "Massa do fragmento iônico (ex: 16 para O+)",      "16.0"),
-            ("m_mol",    "m molécula mãe",          "Massa da molécula precursora (ex: 32 para O2)",   "32.0"),
-            ("DE",       "DE — deflexão (eV)",      "Energia de deflexão do espectrômetro",            "350.0"),
-            ("D",        "D — distância (m)",       "Distância de voo livre",                          "6.8"),
-            ("LL",       "LL — comprimento (m)",    "Comprimento do tubo de voo",                      "6.8"),
+            ("m_mol",    "m molécula mãe",          "Massa da molécula mãe (ex: 32 para O2)",   "32.0"),
+            ("DE",       "DE — extração (eV)",      "Campo de extração",            "350.0"),
+            ("D",        "D — distância (mm)",       "Distância de voo livre",                          "6.8"),
+            ("LL",       "LL — comprimento (mm)",    "Comprimento do tubo de voo",                      "6.8"),
             ("I7_NORM",  "I7 — normalização (ns)",  "Tempo de referência para normalização das amplitudes", "500.0"),
             ("t_offset", "Offset de tempo (ns)",    "Correção do atraso da aquisição eletrônica",      "600.0"),
         ]
