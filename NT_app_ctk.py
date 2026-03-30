@@ -1298,31 +1298,61 @@ class NTApp(ctk.CTk):
             return
 
         def _on_sel_change(*_):
-            n = sum(1 for v in self._sel_historico.values() if v.get())
+            n = sum(1 for item in self._sel_historico.values() if item["var"].get())
             self.btn_comparar.configure(state="normal" if n >= 2 else "disabled")
 
         for pasta in pastas:
-            row = ctk.CTkFrame(self.frame_hist, fg_color=BG2, corner_radius=6,
-                                border_width=1, border_color=BORDA)
-            row.pack(fill="x", pady=3)
+            xlsx = glob.glob(os.path.join(pasta, "*.xlsx"))
+
+            outer = ctk.CTkFrame(self.frame_hist, fg_color=BG2, corner_radius=6,
+                                  border_width=1, border_color=BORDA)
+            outer.pack(fill="x", pady=3)
+
+            # ── Linha principal ──
+            hdr = ctk.CTkFrame(outer, fg_color="transparent")
+            hdr.pack(fill="x")
 
             v = tk.BooleanVar(value=False)
             v.trace_add("write", _on_sel_change)
-            self._sel_historico[pasta] = v
-            ctk.CTkCheckBox(row, text="", variable=v, width=28,
+            key = ("best", pasta)
+            if xlsx:
+                self._sel_historico[key] = {
+                    "var":    v,
+                    "getter": lambda p=pasta: self._ler_resultado_xlsx(
+                        glob.glob(os.path.join(p, "*.xlsx"))[0], os.path.basename(p)),
+                }
+            ctk.CTkCheckBox(hdr, text="", variable=v, width=28,
                              checkbox_width=16, checkbox_height=16,
-                             checkmark_color="white", fg_color=AZUL,
-                             hover_color=AZUL2).pack(side="left", padx=(8, 0), pady=8)
+                             checkmark_color="white", fg_color=AZUL, hover_color=AZUL2,
+                             state="normal" if xlsx else "disabled"
+                             ).pack(side="left", padx=(8, 0), pady=8)
 
-            ctk.CTkLabel(row, text=os.path.basename(pasta),
+            ctk.CTkLabel(hdr, text=os.path.basename(pasta),
                           font=F_MONO_S, text_color=AZUL,
                           anchor="w").pack(side="left", padx=6, pady=8, fill="x", expand=True)
 
-            bf = ctk.CTkFrame(row, fg_color="transparent")
+            bf = ctk.CTkFrame(hdr, fg_color="transparent")
             bf.pack(side="right", padx=8, pady=4)
+
+            # ── Botão expandir runs ──
+            runs_frame = ctk.CTkFrame(outer, fg_color="transparent")
+            if xlsx:
+                btn_r = btn_ghost(bf, "▶ runs", None, width=80)
+                btn_r.pack(side="left", padx=(0, 6))
+
+                def _toggle(p=pasta, xp=xlsx[0], rf=runs_frame, b=[btn_r]):
+                    if rf.winfo_ismapped():
+                        rf.pack_forget()
+                        b[0].configure(text="▶ runs")
+                    else:
+                        self._carregar_runs_frame(p, xp, rf, _on_sel_change)
+                        rf.pack(fill="x", padx=(40, 8), pady=(0, 6))
+                        b[0].configure(text="▼ runs")
+
+                btn_r.configure(command=_toggle)
+
             btn_ghost(bf, "📁 Abrir",
                       lambda p=pasta: os.startfile(p), width=90).pack(side="left", padx=(0, 6))
-            xlsx = glob.glob(os.path.join(pasta, "*.xlsx"))
             if xlsx:
                 btn_ghost(bf, "📊 Excel",
                           lambda x=xlsx[0]: os.startfile(x), width=80).pack(side="left")
