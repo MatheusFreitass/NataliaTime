@@ -114,6 +114,17 @@ def _ler_xlsx(caminho):
 class MigradorApp(tk.Tk):
     def __init__(self):
         super().__init__()
+        # Ícone correto na barra de tarefas (Windows)
+        try:
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("MigradorNT.app")
+        except Exception:
+            pass
+        try:
+            self.iconbitmap(sys.executable if getattr(sys, "frozen", False)
+                            else os.path.join(os.path.dirname(os.path.abspath(__file__)), "M_icone.ico"))
+        except Exception:
+            pass
         self.title("Natalia Time - Criador de Experimento")
         self.configure(bg=BG)
         self.resizable(True, True)
@@ -158,8 +169,8 @@ class MigradorApp(tk.Tk):
             ("m_frag",   "m fragmento",             "Massa do fragmento iônico (ex: 16 para O+)",      "16.0"),
             ("m_mol",    "m molécula mãe",          "Massa da molécula mãe (ex: 32 para O2)",   "32.0"),
             ("DE",       "DE — extração (eV)",      "Campo de extração",            "350.0"),
-            ("D",        "D — distância (mm)",       "Distância de voo livre",                          "6.8"),
-            ("LL",       "LL — comprimento (mm)",    "Comprimento do tubo de voo",                      "6.8"),
+            ("D",        "D — diâmetro (mm)",       "Diâmetro do colimador",                          "6.8"),
+            ("LL",       "LL — comprimento (mm)",    "Comprimento efetivo do cilindro de ionização",                      "6.8"),
             ("I7_NORM",  "I7 — normalização (ns)",  "Tempo de referência para normalização das amplitudes", "500.0"),
             ("t_offset", "Offset de tempo (ns)",    "Correção do atraso da aquisição eletrônica",      "600.0"),
         ]
