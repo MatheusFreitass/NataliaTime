@@ -1,0 +1,1596 @@
+% =============================================================================
+%  Documentação Técnica — Natalia Time v1.1.0
+%  Compilar com: pdflatex documentacao_tecnica.tex  (2 passagens)
+% =============================================================================
+\documentclass[12pt,a4paper]{report}
+
+% ── Codificação e idioma ──────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+
+% ── Layout ───────────────────────────────────────────────────────────────────
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.8cm, right=2.8cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+% ── Matemática ───────────────────────────────────────────────────────────────
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% ── Gráficos e cores ─────────────────────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+
+% ── Tabelas ──────────────────────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+
+% ── Listas personalizadas ────────────────────────────────────────────────────
+\usepackage{enumitem}
+
+% ── Código-fonte ─────────────────────────────────────────────────────────────
+\usepackage{listings}
+
+% ── Hyperlinks ───────────────────────────────────────────────────────────────
+\usepackage[hidelinks, colorlinks=true,
+            linkcolor=blue!60!black,
+            urlcolor=blue!60!black,
+            citecolor=blue!60!black]{hyperref}
+
+% ── Definição de cores ───────────────────────────────────────────────────────
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codeframe}{RGB}{200,200,200}
+\definecolor{keyword}{RGB}{0,0,180}
+\definecolor{comment}{RGB}{0,128,0}
+\definecolor{string}{RGB}{163,21,21}
+\definecolor{azul}{RGB}{30,100,200}
+\definecolor{cinzatitulo}{RGB}{50,50,80}
+
+% ── Estilo de código Python ───────────────────────────────────────────────────
+\lstdefinestyle{python}{
+  language=Python,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  framerule=0.6pt,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries\color{keyword},
+  commentstyle=\itshape\color{comment},
+  stringstyle=\color{string},
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  numbersep=6pt,
+  showstringspaces=false,
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=4,
+  captionpos=b,
+  morekeywords={True,False,None,np,plt,pd,os,sys,mp,datetime},
+}
+\lstset{style=python}
+
+% ── Formatação de títulos ─────────────────────────────────────────────────────
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{cinzatitulo}}
+  {\chaptertitlename\ \thechapter}{18pt}{\Huge}
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{cinzatitulo}}
+  {\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{cinzatitulo!80}}
+  {\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries}
+  {\thesubsubsection}{1em}{}
+
+% ── Cabeçalho e rodapé ───────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Natalia Time — Documentação Técnica}}
+\fancyhead[R]{\small\textit{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Espaçamento ───────────────────────────────────────────────────────────────
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+
+% ── Comandos auxiliares ──────────────────────────────────────────────────────
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\param}[1]{\texttt{\bfseries #1}}
+\newcommand{\arquivo}[1]{\texttt{\itshape #1}}
+
+% =============================================================================
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  {\Huge\bfseries\color{cinzatitulo} Natalia Time}\par
+  \vspace{0.5cm}
+  {\large\color{azul} Documentação Técnica Completa — v1.1.0}\par
+  \vspace{1cm}
+  \rule{0.8\textwidth}{1pt}\par
+  \vspace{0.5cm}
+  {\large Ferramenta de Análise de Espectroscopia de Tempo de Voo (DETOF)\\
+  para Fragmentação por Impacto de Elétrons}\par
+  \vspace{1.5cm}
+  {\normalsize
+    Cobre os três componentes principais do sistema:\par
+    \vspace{0.3cm}
+    \texttt{analise\_natalia\_time.py} — Motor de análise e otimização\par
+    \texttt{NT\_app\_ctk.py} — Interface gráfica (customtkinter)\par
+    \texttt{Migrador NT/migrador.py} — Conversor de formatos\par
+  }
+  \vspace{2cm}
+  \rule{0.8\textwidth}{0.4pt}\par
+  \vspace{0.5cm}
+  {\small Documento gerado em março de 2026.\\
+  Para uso interno no Laboratório de Física Molecular e Espectroscopia.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% =============================================================================
+\chapter{Contexto Físico}
+\label{cap:fisica}
+% =============================================================================
+
+\section{Espectroscopia de Tempo de Voo (DETOF)}
+
+A técnica DETOF (\textit{Drift-time Electrostatic Time-of-Flight}) mede o
+tempo que íons fragmentos levam para percorrer uma distância conhecida após
+serem produzidos em uma câmara de ionização por impacto de elétrons.
+A variável medida é, portanto, o tempo $t$ (em nanosegundos) e o sinal
+correspondente $u(t)$, proporcional à quantidade de íons que chegam ao
+detector em cada instante.
+
+O experimento tipicamente produz uma curva $u/u_0$ versus $t$ em escala
+logarítmica, onde $u_0$ é o sinal no tempo de referência $t_0 =$ \texttt{I7\_NORM}
+(padrão: 500~ns). A normalização é essencial para comparar experimentos
+realizados em diferentes condições de corrente de feixe.
+
+\subsection{Fragmentação por Impacto de Elétrons}
+
+Quando uma molécula neutra (por exemplo, O$_2$) é bombardeada por elétrons
+energéticos (tipicamente 100--300~eV), ocorrem ionização e fragmentação:
+\[
+  e^- + \text{O}_2 \longrightarrow \text{O}^+ + \text{O} + 2e^-
+\]
+O fragmento iônico O$^+$ é produzido com uma distribuição de energias
+cinéticas que reflete o mecanismo de fragmentação: parte dos fragmentos
+carrega a energia térmica do gás de fundo (distribuição de Maxwell-Boltzmann),
+enquanto outros recebem energia cinética adicional proveniente da quebra de
+ligações, resultando em distribuições exponenciais e gaussianas.
+
+\subsection{Por Que Usar uma Soma Ponderada de Distribuições?}
+
+A distribuição total de velocidades do fragmento não é descrita por uma
+única função analítica. Diferentes canais de fragmentação produzem fragmentos
+com características energéticas distintas:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Maxwell-Boltzmann (MB):} fragmentos em equilíbrio térmico com
+    o gás ambiente — presença inevitável em qualquer experimento.
+  \item \textbf{Exponencial (EXP):} fragmentos com distribuição exponencial de
+    energia cinética — canal dissociativo "suave".
+  \item \textbf{Gaussianas (G1, G2, G3):} fragmentos com energia bem definida,
+    emitidos por estados específicos da molécula-mãe.
+\end{itemize}
+
+A modelagem por soma ponderada permite identificar e quantificar a contribuição
+relativa de cada canal, mesmo quando eles se sobrepõem no espectro de tempo.
+
+\section{O Modelo Físico}
+
+O sinal teórico $S(t)$ é expresso como:
+
+\begin{equation}
+  \boxed{S(t) = p_{\text{mb}}\cdot\text{MB}(t) + p_{\text{exp}}\cdot\text{EXP}(t)
+               + p_{g1}\cdot G_1(t) + p_{g2}\cdot G_2(t) + p_{g3}\cdot G_3(t)}
+  \label{eq:modelo}
+\end{equation}
+
+com a restrição de normalização:
+\begin{equation}
+  p_{\text{mb}} + p_{\text{exp}} + p_{g1} + p_{g2} + p_{g3} = 1
+  \label{eq:norma}
+\end{equation}
+
+Cada parcela $X(t)$ representa o sinal esperado de uma curva isolada,
+normalizado de forma independente para que sua amplitude no ponto de
+referência $t_0$ seja unitária. O código implementa isso via a função
+\code{normalizar\_amplitudes()}, que replica exatamente o procedimento
+VBA \textit{NormalizarProcessoCientifico} da planilha original.
+
+\subsection{Componente Maxwell-Boltzmann}
+
+A distribuição de velocidades de Maxwell-Boltzmann para fragmentos em
+equilíbrio térmico com o gás à temperatura $T$ é:
+\[
+  f_{\text{MB}}(v) \propto v \cdot \exp\!\left(-\beta_{\text{mb}}^2 v^2\right)
+\]
+
+O parâmetro $\beta_{\text{mb}}$ está relacionado à temperatura por:
+\begin{equation}
+  \beta_{\text{mb}} = \sqrt{\frac{4{,}04 \times 10^5 \cdot (300/T_{\text{gas}}) \cdot m_{\text{mol}}}{2}}
+  \label{eq:betamb}
+\end{equation}
+
+onde $T_{\text{gas}}$ é a temperatura do gás em kelvin e $m_{\text{mol}}$ é
+a massa molar da molécula-mãe. O parâmetro $\beta_{\text{mb}}$ é lido
+diretamente da célula AA4 da planilha Excel (ou do \texttt{parametros.toml})
+e é \textbf{fixo durante toda a otimização} — ele é determinado pela física
+do experimento, não pelo ajuste.
+
+No código, a distribuição MB pura é calculada como:
+\begin{lstlisting}[caption={Distribuição MB na grade de velocidades}]
+y_mb = H9_VEC * np.exp(-((fixos["beta_mb"] * H9_VEC)**2))
+\end{lstlisting}
+
+onde \code{H9\_VEC} é o vetor de velocidades discretas na grade de
+Gauss-Hermite.
+
+\subsection{Componente Exponencial}
+
+A distribuição exponencial modela fragmentos que recebem energia cinética
+adicional por um canal dissociativo com distribuição de energia exponencial:
+\[
+  f_{\text{exp}}(v) \propto v \cdot \exp\!\left(-\beta_{\text{exp}}^2 v^2\right)
+  \cdot \text{GH}_{\text{exp}}(\beta_{\text{exp}})
+\]
+
+O kernel de Gauss-Hermite \code{gh\_exp} integra numericamente:
+\[
+  \text{GH}_{\text{exp}}(\beta^2) = \sum_{k=1}^{4} w_k \cdot
+    \frac{e^{-x_k^2} \cdot x_k}{\sqrt{x_k^4 + x_k^2 \beta^2 v^2}}
+\]
+
+O parâmetro $\beta_{\text{exp}}$ é \textbf{variável} e otimizado durante
+a busca, no intervalo configurável (padrão: 50 a 5000).
+
+\subsection{Componentes Gaussianas}
+
+Cada gaussiana $G_i(t)$ corresponde a fragmentos emitidos com energia cinética
+bem definida $E_i$ (em eV). A velocidade central correspondente é:
+\begin{equation}
+  v_0 = \frac{\sqrt{E_i / m_{\text{frag}}}}{72{,}284}
+  \label{eq:v0}
+\end{equation}
+
+A distribuição no espaço de velocidades é:
+\[
+  f_{G}(v) \propto \frac{v}{2} \cdot \exp\!\left(-\beta_G^4 (v^2 - v_0^2)^2\right)
+  \cdot \text{GH}_{\text{gauss}}(\beta_G, v_0)
+\]
+
+As energias $E_{g1}$, $E_{g2}$, $E_{g3}$ (variáveis \code{e\_g3}, \code{e\_g4},
+\code{e\_g5} no código) são tipicamente lidas da planilha mas podem ser
+sobrescritas pela configuração. Cada gaussiana tem seu próprio parâmetro
+de largura $\beta_{Gi}$ otimizado.
+
+\subsection{A Restrição de Normalização dos Pesos}
+
+O código normaliza os pesos automaticamente:
+\begin{lstlisting}[caption={Normalização dos pesos em calcular\_espectro()}]
+soma_p = p_mb + p_exp + p_g3 + p_g4 + p_g5
+pn_mb  = p_mb  / soma_p
+pn_exp = p_exp / soma_p
+# etc.
+\end{lstlisting}
+
+Isso garante que a equação~\ref{eq:norma} seja sempre satisfeita, independente
+dos valores brutos sorteados. Na busca aleatória, os pesos são amostrados
+de uma distribuição de Dirichlet, que por construção produz vetores que
+somam~1.
+
+\section{Métricas de Qualidade: RMSE e R\texorpdfstring{$^2$}{2}}
+
+\subsection{Coeficiente de Determinação R\texorpdfstring{$^2$}{2}}
+
+O $R^2$ replica exatamente a fórmula Excel usada na planilha de referência:
+\begin{equation}
+  R^2 = 1 - \frac{\sum_i (S_{\text{teo},i} - S_{\text{exp},i})^2}
+                 {\sum_i (S_{\text{exp},i} - \bar{S}_{\text{exp}})^2}
+  \label{eq:r2}
+\end{equation}
+
+Um resultado é considerado válido quando $R^2 \geq$ \code{SCORE\_MINIMO}
+(padrão: 0,99). Valores de $R^2$ próximos de 1,0 indicam excelente concordância.
+
+\subsection{RMSE Relativo}
+
+O RMSE implementado não é o erro quadrático médio simples. Ele replica o
+algoritmo VBA \textit{CalcularDesvioResiduos}, que usa resíduos relativos
+com subtração de tendência linear:
+
+\begin{enumerate}
+  \item Calcula o resíduo absoluto: $D_i = S_{\text{teo},i} - S_{\text{exp},i}$
+  \item Ajusta uma reta sobre $D_i$ vs. $t_i$: $D_i \approx m \cdot t_i + b$
+  \item Calcula o resíduo relativo: $E_i = D_i / S_{\text{exp},i}$
+  \item Retorna:
+  \[
+    \text{RMSE} = \sqrt{\frac{1}{N}\sum_i (E_i - (m \cdot t_i + b))^2}
+  \]
+\end{enumerate}
+
+Essa definição é mais sensível a desvios sistemáticos (tendências no resíduo)
+do que um RMSE absoluto simples, e é por isso que a função objetivo do Nelder-Mead
+minimiza o RMSE e não o $1 - R^2$.
+
+\section{Parâmetros Físicos do Experimento}
+
+\begin{table}[h!]
+  \centering
+  \caption{Parâmetros físicos lidos da planilha ou do \texttt{parametros.toml}}
+  \begin{tabular}{llp{7cm}}
+    \toprule
+    \textbf{Variável} & \textbf{Célula Excel} & \textbf{Descrição} \\
+    \midrule
+    \code{beta\_mb} & AA4 (linha 4, col 27) & Parâmetro de largura da distribuição MB; determina a temperatura efetiva do gás \\
+    \code{m\_frag}  & B14 (linha 14, col 2) & Massa do fragmento iônico (u.a.m.) \\
+    \code{m\_mol}   & B13 (linha 13, col 2) & Massa da molécula-mãe (u.a.m.) \\
+    \code{DE}       & B5  (linha 5, col 2)  & Tensão de extração do espectrômetro (eV) \\
+    \code{D}        & B9  (linha 9, col 2)  & Diâmetro do tubo de voo (m) \\
+    \code{LL}       & B11 (linha 11, col 2) & Comprimento efetivo do cilindro de ionização (m) \\
+    \code{I7\_NORM} & I7  (linha 7, col 9)  & Tempo de referência para normalização das amplitudes (ns) \\
+    \code{e\_g3}    & AC6 (linha 6, col 29) & Energia da Gaussiana 1 (eV) \\
+    \code{e\_g4}    & AD6 (linha 6, col 30) & Energia da Gaussiana 2 (eV) \\
+    \code{e\_g5}    & AE6 (linha 6, col 31) & Energia da Gaussiana 3 (eV) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Valores de Fallback}
+
+Quando uma célula da planilha está vazia ou inacessível, o código utiliza
+\code{FIXOS\_FALLBACK}, uma constante definida na Seção~4 de
+\arquivo{analise\_natalia\_time.py}. Esses valores correspondem ao experimento
+de referência O$_2$ a 300~eV:
+
+\begin{lstlisting}[caption={Dicionário FIXOS\_FALLBACK}]
+FIXOS_FALLBACK = {
+    "beta_mb": 2572.6309556813,
+    "e_g3":    0.7,
+    "e_g4":    3.0,
+    "e_g5":    2.0,
+    "m_frag":  16.0,
+    "m_mol":   32.0,
+    "DE":      350.0,
+    "D":       6.8,
+    "LL":      6.8,
+    "I7_NORM": 500.0,
+}
+\end{lstlisting}
+
+\section{A Grade BM e a Interpolação}
+
+O sinal teórico $S(t)$ envolve uma integral sobre todas as velocidades
+possíveis dos fragmentos. Para calcular essa integral numericamente e
+depois comparar com os pontos experimentais (que podem ter espaçamento
+irregular), o código usa a seguinte estratégia:
+
+\begin{enumerate}
+  \item \textbf{Construção da grade BM} (\code{GRADE\_BM}): um vetor de tempos
+    com três regimes de resolução que replicam a planilha Excel original:
+    \begin{itemize}
+      \item 510–2960~ns: passo de 50~ns
+      \item 3060–9960~ns: passo de 100~ns
+      \item 10160~ns em diante: passo de 200~ns
+    \end{itemize}
+    Tipicamente ~175 pontos, cobrindo todo o range experimental.
+
+  \item \textbf{Cálculo vetorial} (\code{calcular\_espectro}): para cada ponto
+    da grade, o sinal é calculado usando operações vetorizadas com
+    \texttt{numpy.einsum}, que substitui um loop Python de 175 iterações
+    por uma operação de álgebra linear muito mais rápida.
+
+  \item \textbf{Interpolação linear} (\code{numpy.interp}): o sinal na grade
+    BM é interpolado nos tempos experimentais reais, que podem ter
+    espaçamento diferente.
+\end{enumerate}
+
+O motivo de usar a grade ao invés de calcular diretamente nos tempos
+experimentais é que os filtros de aceitação do detector $P_9(t)$ e $U_9(t)$
+são pré-calculados para toda a grade e armazenados em \code{P9\_GRADE} e
+\code{U9\_GRADE} (matrizes de dimensão $175 \times 1492$), evitando
+recálculos custosos a cada iteração da otimização.
+
+
+% =============================================================================
+\chapter{Pipeline de Otimização}
+\label{cap:otimizacao}
+% =============================================================================
+
+\section{Visão Geral}
+
+O pipeline de otimização tem duas fases complementares:
+
+\begin{description}[leftmargin=2.5em, style=nextline]
+  \item[\textbf{Fase 1 — Busca global aleatória}]
+    Explora o espaço de parâmetros de forma ampla, usando paralelismo
+    via \code{multiprocessing.Pool}. Para cada ``rodada'', sorteia um
+    conjunto de $\beta$s aleatórios e testa múltiplos conjuntos de pesos.
+    Guarda todos os resultados com $R^2 \geq$ \code{SCORE\_MINIMO}.
+
+  \item[\textbf{Fase 2 — Refinamento local com Nelder-Mead}]
+    Seleciona os melhores candidatos da busca aleatória e os refina com
+    o método de Nelder-Mead (simplex), que é um otimizador local sem
+    gradiente — adequado para funções com descontinuidades numéricas.
+\end{description}
+
+Esse design é uma estratégia clássica de \textit{global search + local
+refinement}: a busca aleatória evita ficar preso em mínimos locais,
+enquanto o Nelder-Mead extrai o máximo de qualidade dos candidatos
+promissores.
+
+\section{Fase 1: Busca Global Aleatória}
+
+\subsection{Amostragem de Betas}
+
+Para cada rodada $i$ (de 1 a \code{ITERACOES\_BETA}), os quatro betas
+variáveis são sorteados independentemente de distribuições uniformes:
+\[
+  \beta_k \sim \mathcal{U}(lo_k,\; hi_k), \quad k \in \{\text{exp}, g1, g2, g3\}
+\]
+
+Os intervalos $[lo_k, hi_k]$ são configuráveis via \code{INTERVALOS\_BETA}.
+O beta da MB ($\beta_{\text{mb}}$) é fixo e lido da planilha.
+
+\subsection{Amostragem de Pesos com Distribuição de Dirichlet}
+
+Para cada conjunto de $\beta$s, são testadas \code{ITERACOES\_PESOS}
+combinações de pesos. Os pesos são amostrados de uma distribuição de
+Dirichlet com parâmetro de concentração uniforme:
+\[
+  (p_1, p_2, \ldots, p_K) \sim \text{Dirichlet}(\mathbf{1}_K)
+\]
+
+A distribuição de Dirichlet garante que os pesos sejam positivos e somem 1
+por construção, sem necessidade de normalização posterior (embora o código
+a execute assim mesmo por segurança). Ela também produz amostras uniformes
+sobre o simplex — crucial para explorar o espaço de pesos sem viés.
+
+\begin{lstlisting}[caption={Amostragem de pesos via Dirichlet}]
+curvas_ativas = [k for k, v in CURVAS_PESO_ATIVAS.items() if v]
+n_curvas      = len(curvas_ativas)
+for _ in range(ITERACOES_PESOS):
+    dir_s = rng.dirichlet(np.ones(n_curvas))
+    pesos = {k: 0.0 for k in nomes_pesos}
+    for idx, nome in enumerate(curvas_ativas):
+        pesos[nome] = float(dir_s[idx])
+\end{lstlisting}
+
+\subsection{Critério de Aceitação}
+
+Um resultado é marcado como \textbf{VÁLIDO} se:
+\[
+  R^2 \geq \text{SCORE\_MINIMO} \quad (\text{padrão: } 0{,}99)
+\]
+
+O cálculo de RMSE é feito \emph{apenas} para resultados válidos, pois é
+mais caro computacionalmente. Para resultados inválidos, apenas $R^2$
+é calculado (muito mais rápido).
+
+\subsection{Estrutura de Paralelismo com multiprocessing.Pool}
+
+O paralelismo é implementado via \code{multiprocessing.Pool} com o
+padrão \texttt{imap\_unordered}:
+
+\begin{lstlisting}[caption={Pool multiprocessing com imap\_unordered}]
+pool = mp.Pool(processes=n_proc,
+               initializer=_worker_init,
+               initargs=(fixos, tempos_exp, sinal_exp))
+for reg in pool.imap_unordered(_processar_rodada,
+                               args_list, chunksize=chunk):
+    historico.append(...)
+\end{lstlisting}
+
+Cada processo worker é inicializado com \code{\_worker\_init}, que
+reconstrói as grades \code{P9\_GRADE} e \code{U9\_GRADE} localmente
+(necessário porque objetos NumPy não são passados eficientemente por
+\texttt{pickle} entre processos). Os workers são independentes —
+cada um processa uma rodada completa.
+
+A função \code{\_processar\_rodada} é a unidade de trabalho: recebe
+o índice da rodada e uma semente aleatória, e retorna o melhor
+resultado encontrado nessa rodada.
+
+\subsection{Mecanismo de Parada Suave (PARAR.txt)}
+
+Para permitir interrupção sem perda de dados, o código verifica
+periodicamente a existência de um arquivo \code{PARAR.txt} na pasta
+de resultados:
+
+\begin{lstlisting}[caption={Verificação de arquivo PARAR.txt}]
+arquivo_parar = os.path.join(pasta_parar, ARQUIVO_PARAR)
+if os.path.exists(arquivo_parar):
+    print(f"[{ARQUIVO_PARAR} detectado] Encerrando...")
+    interrompido = True
+    break
+\end{lstlisting}
+
+A criação do arquivo pode ser feita pelo botão ``Parar'' da GUI
+ou manualmente. O código para ao final da rodada atual, salvando
+todos os resultados coletados.
+
+\section{Fase 2: Refinamento Local com Nelder-Mead}
+
+\subsection{Seleção de Candidatos por Clustering Hierárquico}
+
+Após a busca aleatória, os resultados válidos são agrupados no espaço
+normalizado dos betas (4 dimensões, cada uma em $[0, 1]$). O objetivo
+é selecionar candidatos \emph{diversos} para o Nelder-Mead, não apenas
+os $N$ melhores por RMSE que podem estar todos no mesmo mínimo local.
+
+O algoritmo usa clustering hierárquico aglomerativo com linkagem completa
+(\texttt{scipy.cluster.hierarchy}):
+\[
+  d_{\text{normalizada}} = \frac{\beta_k - lo_k}{hi_k - lo_k}
+\]
+
+O corte é definido por \code{NM\_CLUSTER\_LIMIAR} (padrão: 0,25) aplicado
+à distância euclidiana. Do melhor elemento de cada cluster (menor RMSE),
+é selecionado um candidato.
+
+\begin{figure}[h!]
+\centering
+\begin{minipage}{0.85\textwidth}
+\begin{description}[leftmargin=2em, style=nextline]
+  \item[\textbf{Exemplo com 3 clusters:}]
+    Suponha que a busca encontrou 50 resultados válidos. Dois deles
+    têm $\beta_{\text{exp}} \approx 300$ e um tem $\beta_{\text{exp}} \approx 800$.
+    O clustering os separa em 2 grupos e seleciona 1 candidato de cada,
+    garantindo que o Nelder-Mead explore ambas as regiões do espaço.
+\end{description}
+\end{minipage}
+\end{figure}
+
+\subsection{Parametrização do Nelder-Mead}
+
+O Nelder-Mead otimiza simultaneamente:
+\begin{itemize}
+  \item Os 4 betas variáveis: $\beta_{\text{exp}}, \beta_{g1}, \beta_{g2}, \beta_{g3}$
+  \item Os pesos: parametrizados como \textbf{logits} (softmax), garantindo
+    que somem 1 sem restrições explícitas
+  \item Opcionalmente: as energias das gaussianas (quando \code{ENERGIA\_NM\_LIVRE = True})
+\end{itemize}
+
+A parametrização por softmax é uma escolha de design importante:
+permite ao otimizador trabalhar em espaço irrestrito ($\mathbb{R}^K$)
+enquanto os pesos resultantes ficam automaticamente em $[0,1]$ e somam~1.
+
+\begin{lstlisting}[caption={Softmax com piso de peso mínimo}]
+def softmax_com_piso(w):
+    e = np.exp(w - np.max(w))
+    probs = e / e.sum()
+    for idx, nome in enumerate(curvas_ativas):
+        pmin = PESO_MIN.get(nome)
+        if pmin is not None and probs[idx] < pmin:
+            probs[idx] = pmin
+    return probs / probs.sum()
+\end{lstlisting}
+
+\subsection{Reinícios Automáticos}
+
+Se o Nelder-Mead não converge em \code{NM\_MAX\_ITER} iterações, o código
+o reinicia com perturbação do ponto ótimo encontrado:
+\[
+  x_{\text{novo}} = x_{\text{melhor}} + \epsilon \cdot \delta
+\]
+onde $\delta$ é amostrado de $\mathcal{U}(-1, 1)$ e $\epsilon = $
+\code{NM\_PERTURB\_ESCALA}~$ \times$ escala do parâmetro (padrão: $\pm 10\%$).
+
+\subsection{Nomenclatura das Rodadas no Output}
+
+\begin{table}[h!]
+  \centering
+  \caption{Convenção de nomenclatura das rodadas}
+  \begin{tabular}{lp{8cm}}
+    \toprule
+    \textbf{Prefixo} & \textbf{Significado} \\
+    \midrule
+    \texttt{1, 2, 3, ...} & Rodadas numéricas da busca aleatória \\
+    \texttt{NM1, NM2, ...} & Rodadas do refinamento Nelder-Mead (candidato 1, 2, ...) \\
+    \texttt{F2-N} & Rodadas da Fase 2 (busca em duas fases) \\
+    \texttt{A-N} & Rodadas da busca adaptada \\
+    \texttt{VAL} & Rodada do modo de validação manual \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Arquivos de Saída}
+
+Ao final de cada execução, o código cria uma subpasta em
+\texttt{Resultados/<nome\_experimento>\_<data>\_<hora>/} contendo:
+
+\begin{description}[leftmargin=2.5em, style=nextline]
+  \item[\texttt{<nome>\_relatorio.txt}]
+    Relatório de texto plano com metadados, configuração usada e tabela
+    dos melhores resultados.
+
+  \item[\texttt{<nome>\_Relatorio<N>\_<stamp>.xlsx}]
+    Relatório Excel com seções de metadados (início, duração, válidos),
+    configuração de NM, intervalos de busca, melhor resultado global e
+    tabela completa de todas as rodadas ordenadas por $R^2$.
+    Células verdes = válido; vermelhas = abaixo do corte.
+
+  \item[\texttt{graficos\_rodadas/rod<NNNN>\_*.png}]
+    Gráfico para cada rodada válida (limitado a \code{SALVAR\_GRAFICOS\_TOP},
+    padrão: 20). Cada gráfico tem dois painéis: espectro log-log com as
+    curvas componentes e resíduos relativos com reta de tendência.
+\end{description}
+
+
+% =============================================================================
+\chapter{Planilhas Excel de Entrada e Saída}
+\label{cap:excel}
+% =============================================================================
+
+\section{Estrutura da Planilha de Entrada (.xlsm/.xlsx)}
+
+\subsection{Dados Experimentais}
+
+Os dados experimentais ocupam as colunas A e B da primeira aba da planilha:
+\begin{itemize}
+  \item \textbf{Coluna A}: tempo em nanossegundos
+  \item \textbf{Coluna B}: sinal normalizado $u/u_0$
+\end{itemize}
+
+O código detecta automaticamente a linha de início procurando a palavra
+``tempo'' (insensível a maiúsculas/minúsculas) na coluna A:
+
+\begin{lstlisting}[caption={Detecção automática da linha de início}]
+for i, row in enumerate(ws.iter_rows(...), start=1):
+    val = row[0]
+    if val is not None and isinstance(val, str) \
+       and "tempo" in val.lower():
+        return i + 1  # linha seguinte = início dos dados
+\end{lstlisting}
+
+A leitura é feita em \textbf{passagem única} (\texttt{read\_only=True}),
+necessária para não carregar a planilha inteira na memória.
+
+\subsection{Parâmetros Fixos: Mapeamento de Células}
+
+\begin{table}[h!]
+  \centering
+  \caption{Células fixas lidas da planilha (índices base-0 no código)}
+  \begin{tabular}{llll}
+    \toprule
+    \textbf{Variável} & \textbf{Índice (row, col)} & \textbf{Célula Excel} & \textbf{Valor típico} \\
+    \midrule
+    \code{beta\_mb} & (3, 26) & AA4  & 2572,63 \\
+    \code{m\_frag}  & (13, 1) & B14  & 16,0 \\
+    \code{m\_mol}   & (12, 1) & B13  & 32,0 \\
+    \code{DE}       & (4, 1)  & B5   & 350,0 eV \\
+    \code{D}        & (8, 1)  & B9   & 6,8 m \\
+    \code{LL}       & (10, 1) & B11  & 6,8 m \\
+    \code{I7\_NORM} & (6, 8)  & I7   & 500,0 ns \\
+    \code{e\_g3}    & (5, 28) & AC6  & 0,7 eV \\
+    \code{e\_g4}    & (5, 29) & AD6  & 3,0 eV \\
+    \code{e\_g5}    & (5, 30) & AE6  & 2,0 eV \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Os índices \texttt{(row, col)} usam base-0; a célula Excel é obtida somando
+1 a cada índice no código \code{ws.cell(row=r+1, column=c+1)}.
+
+\section{Formato CSV + TOML}
+
+O formato alternativo (criado pelo Migrador) consiste em dois arquivos
+na mesma pasta:
+
+\subsection{dados.csv}
+
+Arquivo de texto com duas colunas separadas por vírgula:
+\begin{verbatim}
+tempo,sinal
+510.0,1.0
+560.0,0.985348
+610.0,0.950200
+...
+\end{verbatim}
+
+O código aceita tanto vírgula quanto ponto-e-vírgula como separador.
+Linhas não numéricas (incluindo o cabeçalho) são ignoradas silenciosamente.
+
+\subsection{parametros.toml}
+
+Arquivo TOML com os parâmetros físicos. Chaves obrigatórias:
+\code{beta\_mb}, \code{m\_frag}, \code{m\_mol}. Chaves opcionais:
+\code{e\_g3}, \code{e\_g4}, \code{e\_g5}, \code{DE}, \code{D},
+\code{LL}, \code{I7\_NORM}.
+
+\begin{lstlisting}[language={},caption={Exemplo de parametros.toml}]
+# Parametros fisicos do experimento
+beta_mb = 2572.630956
+m_frag  = 16.0
+m_mol   = 32.0
+
+# Parametros geometricos do espectrometro DETOF
+DE      = 350.0
+D       = 6.8
+LL      = 6.8
+I7_NORM = 500.0
+
+# Energias das gaussianas (eV)
+# e_g3 = 0.7
+# e_g4 = 3.0
+# e_g5 = 2.0
+\end{lstlisting}
+
+As energias ficam comentadas por padrão; são descomentadas e preenchidas
+pelo botão ``Gravar'' da GUI após o usuário inserir os valores.
+
+\section{Estrutura do Relatório Excel de Saída}
+
+O arquivo \texttt{<nome>\_Relatorio<N>\_<stamp>.xlsx} tem uma única aba
+com a seguinte estrutura linear (linha a linha):
+
+\begin{enumerate}
+  \item \textbf{Seção METADADOS DA OTIMIZAÇÃO}: data/hora de início e fim,
+    duração, iterações configuradas, total de cálculos, válidos, alta precisão.
+
+  \item \textbf{Seção REFINAMENTO NELDER-MEAD}: se ativo — número de
+    candidatos, máximo de iterações, reinícios, tolerância, rodadas NM
+    e quantas foram válidas.
+
+  \item \textbf{Seção INTERVALOS DE BUSCA (Beta)}: para cada beta, a faixa
+    $[\text{min}, \text{max}]$ usada. Seguida de seção ENERGIAS DAS GAUSSIANAS.
+
+  \item \textbf{Seção MELHOR RESULTADO GLOBAL}: todos os parâmetros do melhor
+    ajuste encontrado (rodada, R², RMSE, equação da reta de resíduos, betas,
+    energias, pesos).
+
+  \item \textbf{Tabela completa}: cabeçalho com fundo azul-escuro; cada rodada
+    em uma linha. Rodadas válidas em verde claro (\texttt{D5F5E3}); inválidas
+    em rosa (\texttt{FADBD8}).
+\end{enumerate}
+
+\subsection{Colunas da Tabela Completa}
+
+\begin{table}[h!]
+  \centering
+  \caption{Colunas da tabela de resultados no relatório Excel}
+  \begin{tabular}{ll}
+    \toprule
+    \textbf{Coluna} & \textbf{Conteúdo} \\
+    \midrule
+    Rodada         & Identificador (número, NM1, NM2, etc.) \\
+    Status         & \texttt{VÁLIDO} ou \texttt{Abaixo do Corte} \\
+    R²             & Coeficiente de determinação \\
+    RMSE           & Erro quadrático médio relativo \\
+    Equação da Reta & $y = m \cdot x + b$ dos resíduos \\
+    Beta Exp       & $\beta_{\text{exp}}$ otimizado \\
+    Beta G1        & $\beta_{g1}$ otimizado \\
+    Beta G2        & $\beta_{g2}$ otimizado \\
+    Beta G3        & $\beta_{g3}$ otimizado \\
+    Energia G1 (eV) & $E_{g1}$ usada \\
+    Energia G2 (eV) & $E_{g2}$ usada \\
+    Energia G3 (eV) & $E_{g3}$ usada \\
+    Peso MB        & $p_{\text{mb}}$ normalizado \\
+    Peso Exp       & $p_{\text{exp}}$ normalizado \\
+    Peso G1        & $p_{g1}$ normalizado \\
+    Peso G2        & $p_{g2}$ normalizado \\
+    Peso G3        & $p_{g3}$ normalizado \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+% =============================================================================
+\chapter{analise\_natalia\_time.py — Referência Detalhada}
+\label{cap:analise}
+% =============================================================================
+
+\section{Visão Geral e Estrutura em Seções}
+
+O arquivo \arquivo{analise\_natalia\_time.py} é o motor de análise e pode
+ser executado diretamente (\code{python analise\_natalia\_time.py}) ou
+como subprocesso gerado pela GUI. Está organizado em 13 seções bem delimitadas:
+
+\begin{table}[h!]
+  \centering
+  \caption{Estrutura de seções de analise\_natalia\_time.py}
+  \begin{tabular}{rp{11cm}}
+    \toprule
+    \textbf{Seção} & \textbf{Conteúdo} \\
+    \midrule
+    1  & Importações e utilitários (função \code{br()} para formatação brasileira) \\
+    2  & \textbf{Configuração} — todos os parâmetros injetados pela GUI \\
+    3  & Constantes físicas e geométricas; grade de Gauss-Hermite \\
+    4  & Leitura do Excel e do CSV+TOML \\
+    5  & Kernels de Gauss-Hermite (\code{gh\_exp}, \code{gh\_gauss}) \\
+    6  & Filtros de aceitação do detector (\code{calcular\_filtros}) \\
+    7  & Normalização das amplitudes (\code{normalizar\_amplitudes}) \\
+    8  & Integração do sinal teórico (\code{calcular\_espectro}) \\
+    9  & Métricas R² e RMSE \\
+    10 & Busca aleatória global (worker, pool, parada) \\
+    11 & Gráficos e viewer interativo \\
+    12 & Relatório Excel (\code{escrever\_relatorio\_excel}) \\
+    13 & Execução principal (\code{\_rodar\_analise}, \code{main}) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+A Seção~2 é especial: a GUI a \textbf{substitui completamente} ao gerar o
+script temporário, injetando os valores configurados pelo usuário.
+
+\section{Constantes Físicas Globais}
+
+\begin{description}[leftmargin=2.5em, style=nextline]
+  \item[\texttt{FATOR\_ENERGIA = 7837.5}]
+    Converte velocidade em energia: $E = \text{FATOR\_ENERGIA} \cdot m \cdot v^2$.
+  \item[\texttt{FATOR\_VELOCIDADE = 16.8}]
+    Fator de conversão de velocidade para cálculo de tempos de chegada
+    ao detector após a região de aceleração.
+  \item[\texttt{H6 = 120000}]
+    Número total de pontos na grade de velocidades (resolução da grade).
+    \texttt{H6\_INV = 1/H6} é o passo de velocidade.
+  \item[\texttt{N\_VEL = 1492}]
+    Número de pontos de velocidade efetivamente usados na integração
+    numérica de Gauss-Hermite.
+  \item[\texttt{FMB = 1.7}]
+    Fator multiplicativo específico da curva MB (replica constante da planilha).
+  \item[\texttt{X\_GH, W\_GH}]
+    Nós e pesos de Gauss-Hermite de 4 pontos — escolhidos para integrar
+    exatamente polinômios de grau $\leq 7$, suficiente para as distribuições
+    em questão.
+\end{description}
+
+\section{Função inicializar\_grade()}
+
+\begin{lstlisting}[caption={Assinatura de inicializar\_grade()}]
+def inicializar_grade(fixos: dict, t_min_exp: float = 510.0,
+                      t_max_exp: float = 19960.0,
+                      verbose: bool = True):
+\end{lstlisting}
+
+\textbf{Responsabilidade:} Inicializa todas as variáveis globais dependentes
+dos parâmetros físicos. Deve ser chamada \emph{antes} de qualquer cálculo
+de espectro.
+
+\textbf{O que faz:}
+\begin{enumerate}
+  \item Calcula \code{L9\_VEC} e \code{M9\_VEC}: energias do fragmento e da
+    molécula-mãe na grade de velocidades ($E = \text{FATOR\_ENERGIA} \cdot m \cdot v^2$).
+  \item Atualiza os globais geométricos (\code{D}, \code{DD}, \code{LL},
+    \code{DE}, \code{I7\_NORM}, \code{N0}) com os valores lidos da planilha.
+  \item Constrói \code{GRADE\_BM}: garante cobertura do range experimental
+    com resolução variável (50/100/200~ns).
+  \item Pré-calcula \code{P9\_GRADE} e \code{U9\_GRADE} (matrizes
+    $175 \times 1492$) com todos os filtros para cada ponto da grade.
+    Isso é a operação mais cara da inicialização.
+  \item Calcula \code{P9\_NORM} e \code{U9\_NORM} para o ponto de
+    normalização \code{I7\_NORM}.
+\end{enumerate}
+
+\textbf{Por que pré-calcular os filtros?} Os filtros $P_9(t)$ e $U_9(t)$
+dependem do tempo $t$ mas não dos betas — eles modelam a geometria do
+espectrômetro. Pré-calculá-los uma única vez economiza milhões de chamadas
+a \code{calcular\_filtros()} durante a otimização.
+
+\section{Função calcular\_espectro()}
+
+\begin{lstlisting}[caption={Assinatura de calcular\_espectro()}]
+def calcular_espectro(tempos_exp, beta_exp, beta_g3, beta_g4, beta_g5,
+                      p_mb, p_exp, p_g3, p_g4, p_g5, fixos, amps=None):
+\end{lstlisting}
+
+Esta é a função computacionalmente mais crítica — é chamada
+$\text{ITERACOES\_BETA} \times \text{ITERACOES\_PESOS}$ vezes por execução.
+
+\textbf{Estratégia de otimização:}
+\begin{enumerate}
+  \item Normaliza os pesos por sua soma.
+  \item Reutiliza os vetores $y$ das distribuições puras calculados em
+    \code{normalizar\_amplitudes()} — evita recalcular os kernels de
+    Gauss-Hermite, que são as operações mais custosas.
+  \item Usa \texttt{numpy.einsum} para a integral vetorial, substituindo
+    um loop Python de 175 iterações:
+    \begin{lstlisting}[caption={Integração vetorial com einsum}]
+# P9_GRADE shape: (175, 1492)
+# y_e * dv shape: (1492,)
+sinal_grade += pn_exp * amps["ak3"] * \
+    np.einsum('ij,j->i', P9_GRADE, y_e * dv)
+    \end{lstlisting}
+  \item Interpola o resultado na grade BM nos tempos experimentais reais
+    com \texttt{numpy.interp}.
+\end{enumerate}
+
+\section{Função funcao\_objetivo() (dentro do NM)}
+
+A função objetivo usada pelo Nelder-Mead é:
+\begin{lstlisting}[caption={Função objetivo do Nelder-Mead}]
+def objetivo(x):
+    betas, energias, pesos = params_de_x(x)
+    fixos_nm = {**fixos, **energias}
+    amps = normalizar_amplitudes(fixos_nm, ...)
+    sinal_teo = calcular_espectro(tempos_exp, ..., fixos_nm, amps)
+    rmse, _, _ = calcular_rmse(tempos_exp, sinal_exp, sinal_teo)
+    return rmse
+\end{lstlisting}
+
+O motivo de minimizar RMSE (e não $1 - R^2$) é que o RMSE é mais sensível
+a desvios finos próximos do ótimo. O $R^2$ é usado para o filtro de validade
+porque é mais intuitivo para o usuário.
+
+\section{Função busca\_aleatoria\_worker()}
+
+A função \code{\_processar\_rodada(args)} é chamada por cada worker do Pool.
+Ela recebe apenas \code{(i\_b, semente\_rodada)} como argumentos (minimiza
+o overhead de serialização).
+
+\textbf{Fluxo interno:}
+\begin{enumerate}
+  \item Cria um gerador aleatório independente com a semente da rodada.
+  \item Sorteia os betas dos intervalos.
+  \item Calcula as amplitudes de normalização (uma vez por rodada).
+  \item Para cada uma das \code{ITERACOES\_PESOS} combinações de pesos:
+    calcula o espectro, avalia $R^2$, e se válido, calcula RMSE.
+  \item Retorna o dicionário do melhor resultado desta rodada.
+\end{enumerate}
+
+Os contadores \code{\_validos}, \code{\_alta\_precisao} e \code{\_total}
+são retornados com prefixo \code{\_} para indicar que são auxiliares
+(são agregados pelo processo principal mas não salvos no histórico).
+
+\section{Função busca\_duas\_fases()}
+
+Esta função implementa uma estratégia de busca em dois estágios:
+
+\begin{enumerate}
+  \item \textbf{Fase 1 (grossa):} usa \code{FASE1\_ITER\_BETA} $\times$
+    \code{FASE1\_ITER\_PESOS} combinações com os intervalos originais completos.
+
+  \item \textbf{Cálculo de novos intervalos:} toma os \code{FASE2\_TOP\_REGIOES}
+    melhores resultados da fase 1 e calcula:
+    \[
+      lo_{\text{novo}} = \max(lo_{\text{orig}},\; \min(\beta) - \text{margem})
+    \]
+    \[
+      hi_{\text{novo}} = \min(hi_{\text{orig}},\; \max(\beta) + \text{margem})
+    \]
+    onde $\text{margem} = \max(\text{span} \times \text{FASE2\_MARGEM},\;
+    \text{range} \times 5\%)$.
+
+  \item \textbf{Fase 2 (fina):} busca densa nos novos intervalos reduzidos.
+\end{enumerate}
+
+Por padrão, \code{BUSCA\_DUAS\_FASES = False} — a GUI usa apenas busca
+simples com NM.
+
+\section{Geração e Salvamento de Gráficos}
+
+A função \code{gerar\_e\_salvar\_grafico()} cria uma figura de 11$\times$7
+polegadas com dois painéis via \code{matplotlib.gridspec}:
+
+\begin{description}[leftmargin=2.5em, style=nextline]
+  \item[\textbf{Painel superior (razão 3:1)}]
+    Escala log-log com os dados experimentais (pontos pretos) e as curvas
+    teóricas: Total (vermelho sólido), MB (roxo), EXP (azul), G1 (verde),
+    G2 (laranja). Título com R², RMSE, betas e equação da reta de resíduos.
+
+  \item[\textbf{Painel inferior}]
+    Resíduos relativos $E_i = (S_{\text{teo}} - S_{\text{exp}})/S_{\text{exp}}$
+    como barras coloridas (vermelho = positivo, azul = negativo) com a reta
+    de tendência sobreposta.
+\end{description}
+
+O painel lateral com tabela de parâmetros é implementado em \code{\_painel\_parametros()},
+que usa \texttt{ax.text()} com coordenadas normalizadas (não \texttt{matplotlib.table}
+que tem problemas de layout com fontes monospace).
+
+\section{Modo de Validação Manual}
+
+O modo \code{MODO\_VALIDACAO = True} permite calcular e visualizar o espectro
+para um conjunto de parâmetros conhecido, sem rodar a otimização. Útil para:
+\begin{itemize}
+  \item Verificar se os parâmetros publicados reproduzem o resultado.
+  \item Usar como ponto de partida para um refinamento NM dirigido
+    (\code{VALIDACAO\_REFINAR\_NM = True}).
+  \item Diagnóstico de problemas com a planilha de entrada.
+\end{itemize}
+
+Os parâmetros são definidos em \code{VALIDACAO\_PARAMS}, que contém todos
+os betas, energias e pesos a serem testados.
+
+
+% =============================================================================
+\chapter{NT\_app\_ctk.py — Interface Gráfica}
+\label{cap:gui}
+% =============================================================================
+
+\section{Arquitetura Geral}
+
+A GUI é construída com \textbf{customtkinter}, uma biblioteca que adiciona
+dark theme nativo e widgets modernos ao Tkinter padrão. A classe principal
+\code{NTApp} herda de \code{ctk.CTk} e organiza a interface em:
+
+\begin{itemize}
+  \item \textbf{Header fixo}: título da aplicação com logo LMS e subtítulo.
+  \item \textbf{Barra de experimento}: campo para caminho do arquivo com botão
+    ``Procurar'' e aviso de pasta sincronizada (OneDrive/Dropbox).
+  \item \textbf{6 abas principais}: Início, Configuração, Sequência, Executar,
+    Resultados, Histórico.
+\end{itemize}
+
+A paleta de cores é derivada dos tons do GitHub Dark:
+\code{BG = "\#0e1117"} (fundo principal), \code{AZUL = "\#388bfd"} (destaque),
+\code{VERDE = "\#238636"} (sucesso), \code{VERM = "\#b91c1c"} (erro).
+
+\section{As Seis Abas}
+
+\subsection{Aba Início}
+
+Apresentação visual com passos numerados (``Como começar'') e cards
+descrevendo os dois formatos de entrada aceitos. É a primeira tela que
+o usuário vê e serve como guia rápido de uso.
+
+\subsection{Aba Configuração}
+
+Dividida em duas colunas:
+
+\textbf{Coluna esquerda:}
+\begin{description}[leftmargin=2.5em, style=nextline]
+  \item[Seção ``Busca aleatória'']
+    Campos: Iterações beta, Iterações pesos, R² mínimo, RMSE alvo,
+    Semente, slider de núcleos CPU.
+  \item[Seção ``Nelder-Mead'']
+    Checkbox de ativação, Max iter/candidato, Máx reinícios, slider de
+    tolerância ($10^{-15}$ a $10^{-3}$), checkbox ``Usar clusters'',
+    Limiar cluster, Máx clusters, Top candidatos.
+\end{description}
+
+\textbf{Coluna direita:}
+\begin{description}[leftmargin=2.5em, style=nextline]
+  \item[Seção ``Curvas ativas'']
+    Checkboxes para MB, Exponencial, G1, G2, G3, e campo de peso mínimo MB.
+  \item[Seção ``Energias das gaussianas'']
+    Para cada gaussiana: campo de energia em eV (vazio = usa planilha),
+    checkbox ``NM livre'' (permite ao NM otimizar a energia),
+    checkbox ``Gravar'' (visível apenas no formato CSV — grava no \texttt{parametros.toml}).
+  \item[Seção ``Intervalos de beta'']
+    Tabela com Min/Max para cada curva variável (EXP, G1, G2, G3).
+  \item[Seção ``Saídas'']
+    Campo para número de gráficos PNG a salvar.
+\end{description}
+
+Cada seção tem um botão ``?'' que abre um popup de ajuda contextual
+(\code{help\_popup()}).
+
+\subsection{Aba Sequência}
+
+Permite enfileirar múltiplas planilhas para processamento automático.
+Quando ativa (\code{v\_usar\_seq = True}), a planilha da barra superior
+é ignorada e o código processa cada item da fila com as curvas ativas
+definidas por item.
+
+O botão ``Adicionar'' cria entradas na lista com o caminho do arquivo e
+as curvas selecionadas. Cada entrada tem um botão ``✕'' para remoção.
+
+\subsection{Aba Executar}
+
+Contém:
+\begin{itemize}
+  \item Botão verde ``Iniciar análise'' e botão vermelho ``Parar''.
+  \item Barra de progresso com percentual extraído das linhas de log via
+    regex: \code{r'\textbackslash(\textbackslash s*([\textbackslash d.]+)\%\textbackslash)'}.
+  \item Terminal monoespaçado com saída em tempo real do subprocesso.
+\end{itemize}
+
+\subsection{Aba Resultados}
+
+Exibe automaticamente ao final de uma execução: nome da pasta, R² e RMSE
+do melhor resultado (extraídos do arquivo \texttt{.txt}), e botões para
+abrir a pasta e o Excel.
+
+\subsection{Aba Histórico}
+
+Lista todas as execuções anteriores encontradas em \texttt{Resultados/}.
+Cada entrada é expansível (botão ``runs'') para mostrar as rodadas individuais
+válidas com seus parâmetros. Checkboxes em dois níveis:
+
+\begin{itemize}
+  \item \textbf{Checkbox principal}: seleciona o melhor resultado global do experimento.
+  \item \textbf{Checkboxes de runs}: seleciona rodadas individuais (NM1, NM2, etc.).
+\end{itemize}
+
+Com 2 ou mais selecionados, o botão ``Comparar'' fica ativo.
+
+\section{Geração do Script Temporário}
+
+Este é o mecanismo central de execução. A função \code{criar\_script\_temporario()}:
+
+\begin{enumerate}
+  \item Lê \arquivo{analise\_natalia\_time.py} inteiro do disco.
+  \item Localiza os marcadores \texttt{SEÇÃO 2} e \texttt{SEÇÃO 3} com regex:
+    \begin{lstlisting}[caption={Localização dos marcadores de seção}]
+m2s = re.search(r'#\s*={10,}\s*\n#\s*SECAO 2', codigo)
+m3s = re.search(r'#\s*={10,}\s*\n#\s*SECAO 3', codigo)
+    \end{lstlisting}
+  \item Substitui o bloco entre SEÇÃO 2 e SEÇÃO 3 pelo texto gerado por
+    \code{gerar\_config\_python(cfg)}, que serializa todos os parâmetros
+    da GUI como código Python válido.
+  \item Salva em um arquivo temporário em \texttt{tempfile.mkstemp()}.
+\end{enumerate}
+
+O design de injeção em vez de passagem por argumentos foi escolhido porque
+o motor de análise foi originalmente projetado para execução independente
+com configuração estática. Isso permite que qualquer edição em
+\arquivo{analise\_natalia\_time.py} tome efeito imediatamente, sem precisar
+rebuildar o executável.
+
+\section{Execução como Subprocess}
+
+A execução ocorre em uma thread separada para não bloquear a GUI:
+
+\begin{lstlisting}[caption={Execução como subprocess em thread daemon}]
+def _runner():
+    cmd = [sys.executable, "-u", tmp]
+    proc = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        text=True, encoding="utf-8", errors="replace",
+        bufsize=1, env=env,
+    )
+    self.proc_ref = proc
+    for line in proc.stdout:
+        self._log_q.put(line.rstrip())
+        # Captura caminho da pasta de resultados da saída
+        for token in line.split():
+            if os.path.isdir(token) and "Resultados" in token:
+                ultima_pasta = token
+
+threading.Thread(target=_runner, daemon=True).start()
+self.after(300, self._poll)
+\end{lstlisting}
+
+O método \code{\_poll()} é chamado a cada 300~ms e processa a fila
+\code{\_log\_q} para atualizar o terminal e a barra de progresso,
+sem bloquear o event loop do Tkinter.
+
+\section{Mecanismo de Pause/Stop}
+
+O botão ``Parar'' da GUI:
+\begin{enumerate}
+  \item Desabilita o próprio botão para evitar duplo clique.
+  \item Identifica a pasta de resultados atual (lida do output do processo).
+  \item Cria o arquivo \code{PARAR.txt} nessa pasta.
+  \item Inicia uma thread auxiliar que aguarda até 10 segundos e, se
+    o processo não encerrar, chama \code{proc.terminate()}.
+\end{enumerate}
+
+\section{Janela de Comparação}
+
+Acessível pela aba Histórico, a janela \code{\_janela\_comparacao()} exibe:
+
+\begin{enumerate}
+  \item \textbf{Tabela de parâmetros}: grade com R², RMSE, pesos e betas de
+    cada seleção lado a lado, com linhas alternadas cinza/escuro.
+
+  \item \textbf{Gráfico de barras empilhadas horizontais}: mostra a
+    contribuição percentual de cada componente (MB, EXP, G1, G2, G3) para
+    cada experimento/rodada. Usa matplotlib embutido via
+    \code{FigureCanvasTkAgg}.
+
+  \item \textbf{Grade de PNGs}: exibe os gráficos de cada rodada em grade
+    de 2 colunas. A função \code{\_encontrar\_png()} localiza os arquivos:
+    \begin{lstlisting}[caption={Localização de PNGs por rodada}]
+rod_fmt = str(int(float(rod_str))).zfill(4)
+pngs = glob.glob(
+    os.path.join(pasta, "graficos_rodadas",
+                 f"rod{rod_fmt}_*.png"))
+    \end{lstlisting}
+    Para rodadas NM, usa o nome diretamente (``NM1'', ``NM2'', etc.)
+    sem formatação numérica.
+\end{enumerate}
+
+
+% =============================================================================
+\chapter{Migrador NT/migrador.py — Conversor de Formatos}
+\label{cap:migrador}
+% =============================================================================
+
+\section{Propósito}
+
+O Migrador é um utilitário standalone que converte dados experimentais do
+formato original (planilha Excel com estrutura específica) para o formato
+CSV+TOML consumido pelo Natalia Time. Permite que o usuário trabalhe sem
+ter o Excel instalado na máquina de análise.
+
+\section{Fluxo de Uso}
+
+\begin{enumerate}
+  \item Usuário informa a \textbf{pasta raiz de destino} e o \textbf{nome do experimento}.
+  \item Preenche os \textbf{parâmetros físicos}: temperatura do gás, massas,
+    parâmetros geométricos do espectrômetro e offset de tempo.
+  \item Fornece os dados via:
+    \begin{description}
+      \item[\textbf{Aba Automático}] Seleciona o arquivo \texttt{.xlsx} de dados brutos;
+        o Migrador lê a aba \texttt{Analise\_tempo} nas colunas L e M.
+      \item[\textbf{Aba Manual}] Cola os dados copiados diretamente do Excel
+        (colunas separadas por tab ou vírgula).
+    \end{description}
+  \item Clica em ``Criar experimento''.
+\end{enumerate}
+
+O resultado é uma pasta \texttt{<destino>/<nome>/} contendo \texttt{dados.csv}
+e \texttt{parametros.toml}.
+
+\section{Parâmetros de Entrada}
+
+\begin{table}[h!]
+  \centering
+  \caption{Parâmetros configuráveis no Migrador}
+  \begin{tabular}{llp{6cm}}
+    \toprule
+    \textbf{Campo} & \textbf{Padrão} & \textbf{Descrição} \\
+    \midrule
+    \code{T\_gas} & 300 & Temperatura do gás de expansão (K) — usada para calcular $\beta_{\text{mb}}$ \\
+    \code{m\_frag} & 16,0 & Massa do fragmento iônico (ex: 16 para O$^+$) \\
+    \code{m\_mol} & 32,0 & Massa da molécula-mãe (ex: 32 para O$_2$) \\
+    \code{DE} & 350,0 & Campo de extração em eV \\
+    \code{D} & 6,8 & Diâmetro do colimador em mm \\
+    \code{LL} & 6,8 & Comprimento efetivo do cilindro de ionização em mm \\
+    \code{I7\_NORM} & 500,0 & Tempo de referência para normalização (ns) \\
+    \code{t\_offset} & 600,0 & Offset de tempo eletrônico a somar nos tempos brutos (ns) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Cálculo Automático de beta\_mb}
+
+O parâmetro $\beta_{\text{mb}}$ não é inserido manualmente — é calculado
+pela fórmula:
+\begin{equation}
+  \beta_{\text{mb}} = \sqrt{\frac{4{,}04 \times 10^5 \cdot \frac{300}{T_{\text{gas}}} \cdot m_{\text{mol}}}{2}}
+\end{equation}
+e gravado diretamente no \texttt{parametros.toml}. Isso elimina a necessidade
+do usuário calcular e inserir $\beta_{\text{mb}}$ manualmente.
+
+\section{Parsing de Dados}
+
+\subsection{Modo Automático — Leitura do .xlsx}
+
+A função \code{\_ler\_xlsx()} lê especificamente:
+\begin{itemize}
+  \item Aba: \texttt{Analise\_tempo}
+  \item Coluna L (índice 12): tempo em ns
+  \item Coluna M (índice 13): sinal normalizado
+  \item A partir da linha 13 (\code{LINHA\_DADOS = 13})
+\end{itemize}
+
+Pontos com $t = 0$ e $s \approx 1{,}0$ são filtrados (são pontos de referência).
+
+\subsection{Modo Manual — Cola do Excel}
+
+A função \code{\_parsear\_dados\_manual()} aceita:
+\begin{itemize}
+  \item \textbf{Tab-separado}: resultado de copiar células do Excel (padrão).
+  \item \textbf{Vírgula/ponto-e-vírgula}: separadores alternativos.
+  \item Vírgulas decimais são convertidas para pontos antes do \code{float()}.
+\end{itemize}
+
+O widget de texto exibe um placeholder com exemplo de formato enquanto vazio.
+A contagem de pontos válidos é atualizada em tempo real a cada tecla pressionada.
+
+\section{Aplicação do Offset de Tempo}
+
+O offset de tempo corrige o atraso eletrônico da aquisição: os dados brutos
+têm tempos menores do que os tempos físicos reais de voo. Ao criar o CSV,
+o Migrador soma \code{t\_offset} a cada tempo:
+
+\begin{lstlisting}[caption={Aplicação do offset ao escrever dados.csv}]
+with open(os.path.join(pasta_exp, "dados.csv"), "w") as f:
+    f.write("tempo,sinal\n")
+    for t, s in pontos:
+        f.write(f"{t + t_offset},{s}\n")
+\end{lstlisting}
+
+O valor padrão de 600~ns é um ponto de partida — deve ser ajustado pelo
+usuário conforme o equipamento. O offset é registrado como comentário
+no cabeçalho do \texttt{parametros.toml} para rastreabilidade.
+
+\section{Estrutura dos Arquivos Gerados}
+
+\subsection{dados.csv}
+
+\begin{verbatim}
+tempo,sinal
+610.0,1.0
+660.0,0.985348
+710.0,0.950200
+...
+\end{verbatim}
+(Os tempos brutos de 10, 60, 110, ... ns são somados com o offset de 600 ns.)
+
+\subsection{parametros.toml}
+
+\begin{lstlisting}[language={},caption={Estrutura do parametros.toml gerado}]
+# Parametros fisicos do experimento
+# Gerado pelo Natalia Time - Criador de Experimento
+# T_gas = 300.0 K  ->  beta_mb = 2572.630956
+# Offset de tempo aplicado: 600.0 ns
+
+# Parametros da molecula
+beta_mb = 2572.630956
+m_frag  = 16.0
+m_mol   = 32.0
+
+# Parametros geometricos do espectrometro DETOF
+DE      = 350.0
+D       = 6.8
+LL      = 6.8
+I7_NORM = 500.0
+
+# Energias das gaussianas (eV)
+# Definidas e gravadas pelo Natalia Time
+# e_g3 = 0.7
+# e_g4 = 3.0
+# e_g5 = 2.0
+\end{lstlisting}
+
+As energias ficam comentadas porque dependem do experimento específico
+e devem ser determinadas pelo físico antes da análise.
+
+\section{Validações e Tratamento de Erros}
+
+O Migrador valida:
+\begin{itemize}
+  \item Campos obrigatórios não podem estar vazios.
+  \item Todos os parâmetros numéricos devem ser válidos (aceita vírgula decimal).
+  \item Nome do experimento não pode conter caracteres inválidos para nome de pasta
+    (\texttt{\textbackslash~/:*?"<>|}).
+  \item Mínimo de 5 pontos experimentais válidos.
+  \item Se a pasta de destino já existir, solicita confirmação antes de sobrescrever.
+\end{itemize}
+
+
+% =============================================================================
+\chapter{Portabilidade e Distribuição}
+\label{cap:distribuicao}
+% =============================================================================
+
+\section{Dependências Python}
+
+\begin{table}[h!]
+  \centering
+  \caption{Dependências Python com versões recomendadas}
+  \begin{tabular}{llp{6cm}}
+    \toprule
+    \textbf{Pacote} & \textbf{Versão recomendada} & \textbf{Uso} \\
+    \midrule
+    \code{numpy}         & $\geq 1.24$ & Álgebra linear, grade de velocidades, einsum \\
+    \code{scipy}         & $\geq 1.10$ & Nelder-Mead, clustering hierárquico \\
+    \code{matplotlib}    & $\geq 3.7$  & Gráficos, viewer interativo \\
+    \code{pandas}        & $\geq 2.0}$ & DataFrames para resultados \\
+    \code{openpyxl}      & $\geq 3.1$  & Leitura e escrita de .xlsx/.xlsm \\
+    \code{customtkinter} & $\geq 5.2$  & GUI com dark theme \\
+    \code{darkdetect}    & $\geq 0.8$  & Detecção de tema do sistema (dep. do customtkinter) \\
+    \code{tomllib}       & embutido (Python $\geq 3.11$) & Leitura de parametros.toml \\
+    \code{tkinter}       & embutido    & Base para GUI e para o Migrador \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\textbf{Nota:} \code{tomllib} é parte da biblioteca padrão do Python 3.11+.
+Para Python 3.10 ou anterior, seria necessário usar \code{tomli} como
+dependência externa.
+
+\section{Build com PyInstaller no Windows}
+
+\subsection{NataliaTime.exe}
+
+O arquivo \arquivo{NataliaTime.spec} define o build do executável principal.
+O ponto de entrada é \arquivo{NT\_app\_ctk.py}. A instrução essencial é:
+
+\begin{lstlisting}[language={},caption={Trecho relevante do NataliaTime.spec}]
+from PyInstaller.utils.hooks import collect_data_files
+datas = collect_data_files("customtkinter")
+\end{lstlisting}
+
+Isso inclui os arquivos de tema do customtkinter (JSON, imagens) que são
+necessários para o dark mode funcionar no executável.
+
+\textbf{Importante}: \arquivo{analise\_natalia\_time.py} \textbf{não} é
+embutido no executável — ele é lido do disco em tempo de execução via o
+mecanismo de script temporário. Isso significa que:
+\begin{itemize}
+  \item Mudanças em \arquivo{analise\_natalia\_time.py} entram em vigor
+    imediatamente, sem rebuild.
+  \item O arquivo \arquivo{analise\_natalia\_time.py} \textbf{deve} estar na
+    mesma pasta que \texttt{NataliaTime.exe}.
+\end{itemize}
+
+O script \arquivo{build\_nataliatime.py} automatiza o processo:
+\begin{lstlisting}[caption={Build automatizado}]
+# python build_nataliatime.py
+# Limpa build/ e dist/, depois roda PyInstaller com NataliaTime.spec
+\end{lstlisting}
+
+\subsection{Migrador.exe}
+
+Construído de forma análoga a partir de \arquivo{Migrador NT/migrador.py}
+usando \arquivo{Migrador NT/Migrador.spec} e \arquivo{build\_migrador.py}.
+O Migrador não tem dependências externas pesadas, resultando em um executável
+menor.
+
+\section{Pacote de Distribuição}
+
+O pacote de distribuição é \texttt{pacote\_distribuicao/NataliaTime\_v1.1.0.zip}
+($\approx$122 MB) e contém:
+
+\begin{description}[leftmargin=2.5em, style=nextline]
+  \item[\texttt{NataliaTime.exe}] Executável principal (requer as dependências ao lado).
+  \item[\texttt{Migrador.exe}] Utilitário de conversão de formatos.
+  \item[\texttt{NT\_app\_ctk.py}] Interface gráfica (não embutida no exe).
+  \item[\texttt{analise\_natalia\_time.py}] Motor de análise (lido do disco em runtime).
+  \item[\texttt{LEIA-ME.txt}] Guia do usuário em português.
+\end{description}
+
+\subsection{Instalação para o Usuário Final}
+
+\begin{enumerate}
+  \item Descompactar o ZIP em qualquer pasta (preferencialmente fora do OneDrive).
+  \item Executar \texttt{NataliaTime.exe} diretamente — sem instalação.
+  \item Para converter planilhas antigas, usar \texttt{Migrador.exe}.
+\end{enumerate}
+
+\section{Portabilidade para Linux}
+
+A portabilidade para Linux é possível mas requer as seguintes adaptações:
+
+\begin{description}[leftmargin=2.5em, style=nextline]
+  \item[\textbf{GUI}]
+    customtkinter funciona no Linux via Tkinter, mas pode exigir instalação
+    de pacotes do sistema (\code{python3-tk}, \code{tcl-tk-dev}) e ajustes
+    de fonte para Segoe UI (não nativa no Linux — substituir por DejaVu Sans
+    ou Liberation Sans).
+
+  \item[\textbf{Abertura de arquivos}]
+    O código usa \code{os.startfile(path)} para abrir pastas e Excel, que é
+    exclusivo do Windows. No Linux, substituir por:
+    \begin{lstlisting}[caption={Substituição de os.startfile() para Linux}]
+import subprocess
+subprocess.Popen(["xdg-open", path])
+    \end{lstlisting}
+
+  \item[\textbf{Separador de caminhos}]
+    O código já usa \code{os.path.join()} na maior parte, mas há
+    strings com caminhos hardcoded usando \texttt{\textbackslash} que
+    precisariam ser corrigidas.
+
+  \item[\textbf{Ícone e título da janela}]
+    A chamada \code{ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID()}
+    no Migrador precisa ser envolvida em \code{try/except} (já está).
+
+  \item[\textbf{PyInstaller no Linux}]
+    Produz binário ELF nativo. O processo de build é idêntico ao Windows
+    (\code{python build\_nataliatime.py}) mas requer a dependência
+    \code{binutils} no sistema.
+
+  \item[\textbf{tomllib}]
+    Disponível nativamente no Python 3.11+ em todas as plataformas. Sem
+    mudanças necessárias.
+\end{description}
+
+O motor de análise (\arquivo{analise\_natalia\_time.py}) é puramente
+numérico e não usa nenhuma API específica do Windows — ele rodaria no Linux
+sem modificações.
+
+
+% =============================================================================
+\appendix
+\chapter{Tabela de Parâmetros de Configuração (Seção 2)}
+\label{ap:config}
+% =============================================================================
+
+A tabela a seguir lista todos os parâmetros configuráveis da Seção~2 de
+\arquivo{analise\_natalia\_time.py}, seus valores padrão e a descrição.
+Estes são os parâmetros injetados pela GUI ao gerar o script temporário.
+
+\begin{longtable}{lll}
+  \caption{Parâmetros da Seção 2 — Configuração} \\
+  \toprule
+  \textbf{Parâmetro} & \textbf{Padrão} & \textbf{Descrição} \\
+  \midrule
+  \endfirsthead
+  \toprule
+  \textbf{Parâmetro} & \textbf{Padrão} & \textbf{Descrição} \\
+  \midrule
+  \endhead
+  \bottomrule
+  \endfoot
+  \code{SCORE\_MINIMO}       & 0,99  & R² mínimo para resultado válido \\
+  \code{DESVIO\_ALVO}        & 0,04  & RMSE máximo para ``alta precisão'' \\
+  \code{ITERACOES\_BETA}     & 10    & Combinações de beta sorteadas \\
+  \code{ITERACOES\_PESOS}    & 10    & Pesos testados por beta \\
+  \code{SEMENTE}             & None  & Semente aleatória (None = não reproduzível) \\
+  \code{N\_PROCESSOS}        & None  & Núcleos CPU (None = todos) \\
+  \code{ARQUIVO\_PARAR}      & PARAR.txt & Nome do arquivo de sinal de parada \\
+  \code{INTERVALOS\_BETA}    & vide código & Intervalos $[lo, hi]$ para cada beta \\
+  \code{CURVAS\_PESO\_ATIVAS} & vide código & Quais curvas participam da otimização \\
+  \code{ENERGIAS\_VALOR}     & todos None & Valores fixos para energias (None = planilha) \\
+  \code{ENERGIA\_NM\_LIVRE}  & todos False & Permite NM ajustar a energia \\
+  \code{INTERVALOS\_ENERGIA} & (0,1; 6,0) & Limites para energias livres no NM \\
+  \code{PESO\_MIN}           & p\_mb=0,01 & Peso mínimo por curva \\
+  \code{SALVAR\_GRAFICOS\_TOP} & 20  & Máximo de PNGs a salvar \\
+  \code{VIEWER\_TOP}         & 50   & Máximo no viewer interativo \\
+  \code{USAR\_NELDER\_MEAD}  & True & Ativa refinamento local \\
+  \code{NM\_TOP\_CANDIDATOS} & 5    & Candidatos ao NM (sem clusters) \\
+  \code{NM\_MAX\_ITER}       & 2000 & Iterações máximas por candidato \\
+  \code{NM\_TOLERANCIA}      & $10^{-9}$ & Critério de convergência \\
+  \code{NM\_MAX\_REINICIAR}  & 3    & Reinícios por candidato \\
+  \code{NM\_PERTURB\_ESCALA} & 0,10 & Intensidade da perturbação no reinício \\
+  \code{NM\_USAR\_CLUSTERS}  & True & Seleção por clustering hierárquico \\
+  \code{NM\_CLUSTER\_LIMIAR} & 0,25 & Distância de corte do clustering \\
+  \code{NM\_CLUSTERS\_MAX}   & 10   & Máximo de clusters (candidatos) \\
+  \code{BUSCA\_DUAS\_FASES}  & False & Ativa busca em dois estágios \\
+  \code{ADAPTAR\_INTERVALOS} & False & Ativa adaptação automática de intervalos \\
+  \code{MODO\_VALIDACAO}     & False & Ativa modo de validação manual \\
+  \code{VALIDACAO\_REFINAR\_NM} & False & Refina com NM após validação manual \\
+\end{longtable}
+
+
+\chapter{Glossário de Termos Técnicos}
+\label{ap:glossario}
+
+\begin{description}[leftmargin=2.5em, style=nextline]
+  \item[\textbf{Beta ($\beta$)}]
+    Parâmetro de largura das distribuições de energia cinética. Valores
+    maiores correspondem a distribuições mais estreitas (fragmentos mais
+    ``frios''). Dimensional: inverso de velocidade.
+
+  \item[\textbf{DETOF}]
+    \textit{Drift-time Electrostatic Time-of-Flight}: espectrômetro de
+    massa baseado no tempo de deriva de íons após aceleração eletrostática.
+
+  \item[\textbf{Dirichlet}]
+    Distribuição de probabilidade sobre o simplex $K$-dimensional. Usada
+    para amostrar vetores de pesos que somam 1 de forma uniforme.
+
+  \item[\textbf{Gauss-Hermite}]
+    Método de quadratura numérica para integrais da forma
+    $\int_{-\infty}^{+\infty} f(x) e^{-x^2} dx$. O código usa 4 pontos
+    (suficiente para as integrais envolvidas).
+
+  \item[\textbf{Logit/softmax}]
+    Transformação que mapeia $K$ valores reais irrestringidos em $K$ probabilidades
+    positivas que somam 1. Usada para parametrizar os pesos no Nelder-Mead.
+
+  \item[\textbf{Nelder-Mead}]
+    Método de otimização local sem gradiente baseado em um simplex geométrico
+    que se deforma iterativamente. Robusto para funções com ruído numérico.
+
+  \item[\textbf{R² (coeficiente de determinação)}]
+    Medida de qualidade do ajuste entre 0 e 1. $R^2 = 1$ indica ajuste perfeito.
+    No contexto deste código, $R^2 \geq 0{,}99$ é o critério de validade.
+
+  \item[\textbf{RMSE}]
+    \textit{Root Mean Square Error}: raiz do erro quadrático médio.
+    Neste código, calcula o RMSE dos resíduos relativos após subtração de
+    tendência linear.
+
+  \item[\textbf{Softmax}]
+    Ver Logit/softmax.
+
+  \item[\textbf{Simplex (Nelder-Mead)}]
+    Poliedro $N$-dimensional com $N+1$ vértices usado pelo método de
+    Nelder-Mead para explorar o espaço de parâmetros.
+
+  \item[\textbf{TOML}]
+    \textit{Tom's Obvious Minimal Language}: formato de arquivo de
+    configuração legível por humanos, usado no \texttt{parametros.toml}.
+
+  \item[\textbf{Worker (multiprocessing)}]
+    Processo filho criado pelo Pool. Cada worker recebe um subconjunto
+    das rodadas e as processa independentemente em paralelo.
+\end{description}
+
+\end{document}
