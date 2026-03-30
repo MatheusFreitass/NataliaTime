@@ -1650,6 +1650,42 @@ class NTApp(ctk.CTk):
         canvas.draw()
         canvas.get_tk_widget().pack(fill="both", expand=True, padx=20, pady=(0, 8))
 
+        # ── Gráficos ──────────────────────────────────────────────────────────
+        pngs_disponiveis = [(d, self._encontrar_png(d)) for d in dados]
+        pngs_disponiveis = [(d, p) for d, p in pngs_disponiveis if p and os.path.isfile(p)]
+
+        if pngs_disponiveis:
+            ctk.CTkLabel(win, text="Gráficos", font=F_H2,
+                         text_color=AZUL).pack(anchor="w", padx=20, pady=(8, 4))
+
+            png_scroll = ctk.CTkScrollableFrame(win, fg_color=BG, corner_radius=0,
+                                                height=380, scrollbar_button_color=BG3)
+            png_scroll.pack(fill="x", padx=20, pady=(0, 8))
+
+            try:
+                from PIL import Image as _PImg
+                IMG_W = 460
+                cols  = 2
+                for i, (d, png_path) in enumerate(pngs_disponiveis):
+                    col_idx = i % cols
+                    row_idx = i // cols
+                    card = ctk.CTkFrame(png_scroll, fg_color=BG2, corner_radius=6)
+                    card.grid(row=row_idx, column=col_idx, padx=6, pady=6, sticky="nsew")
+                    png_scroll.grid_columnconfigure(col_idx, weight=1)
+
+                    ctk.CTkLabel(card, text=d["nome"], font=F_SMALL,
+                                 text_color=AZUL, anchor="w").pack(anchor="w", padx=8, pady=(6, 2))
+
+                    img    = _PImg.open(png_path)
+                    w, h   = img.size
+                    new_h  = int(h * IMG_W / w)
+                    ctk_img = ctk.CTkImage(img, size=(IMG_W, new_h))
+                    ctk.CTkLabel(card, image=ctk_img, text="",
+                                 fg_color="transparent").pack(padx=6, pady=(0, 6))
+            except Exception as ex:
+                ctk.CTkLabel(png_scroll, text=f"Erro ao carregar imagens: {ex}",
+                             font=F_SMALL, text_color=VERM2).pack(padx=8, pady=8)
+
         # ── Botão exportar ────────────────────────────────────────────────────
         bf = ctk.CTkFrame(win, fg_color="transparent")
         bf.pack(pady=(0, 14))
