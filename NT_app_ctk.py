@@ -1542,8 +1542,11 @@ class NTApp(ctk.CTk):
             pngs = glob.glob(os.path.join(pasta, "*_melhor_global.png"))
             return pngs[0] if pngs else None
         else:
-            rod_str = str(int(float(rodada)))
-            rod_fmt = rod_str.zfill(4)
+            rod_str = str(rodada)
+            try:
+                rod_fmt = str(int(float(rod_str))).zfill(4)
+            except (ValueError, TypeError):
+                rod_fmt = rod_str  # NM1, NM2, etc.
             pngs = glob.glob(os.path.join(pasta, "graficos_rodadas", f"rod{rod_fmt}_*.png"))
             return pngs[0] if pngs else None
 
