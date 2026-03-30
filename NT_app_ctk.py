@@ -1451,7 +1451,9 @@ class NTApp(ctk.CTk):
                 if not row:
                     continue
                 if not header_found:
-                    if row[0] == "Rodada":
+                    # O cabeçalho real da tabela tem "Status" na coluna seguinte;
+                    # a linha par("Rodada", valor) no resumo tem só col A preenchida.
+                    if row[0] == "Rodada" and len(row) > 1 and row[1] == "Status":
                         header_found = True
                         for j, cell in enumerate(row):
                             if cell is not None:
