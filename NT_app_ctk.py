@@ -1698,10 +1698,6 @@ class NTApp(ctk.CTk):
                 ctk.CTkLabel(png_scroll, text=f"Erro ao carregar imagens: {ex}",
                              font=F_SMALL, text_color=VERM2).pack(padx=8, pady=8)
 
-        # ── Botão exportar ────────────────────────────────────────────────────
-        bf = ctk.CTkFrame(win, fg_color="transparent")
-        bf.pack(pady=(0, 14))
-        btn_ghost(bf, "💾  Exportar Excel", lambda: self._exportar_comparacao(dados), width=160).pack(side="left", padx=(0, 10))
         btn_ghost(bf, "Fechar", win.destroy, width=100).pack(side="left")
 
     def _exportar_comparacao(self, dados):
