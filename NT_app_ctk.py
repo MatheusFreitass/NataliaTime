@@ -1514,12 +1514,12 @@ class NTApp(ctk.CTk):
                 "Energia Gaussiana 2 (eV)":"e_g2",
                 "Energia Gaussiana 3 (eV)":"e_g3",
             }
-            d = {"nome": nome}
+            d = {"nome": nome, "pasta": os.path.dirname(path), "rodada": None}
             for row in ws.iter_rows(values_only=True):
                 if row and row[0] in mapa:
                     d[mapa[row[0]]] = float(row[1]) if row[1] is not None else 0.0
             wb.close()
-            return d if len(d) > 1 else None
+            return d if len(d) > 3 else None
         except Exception:
             return None
 
