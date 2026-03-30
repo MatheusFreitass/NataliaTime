@@ -181,6 +181,13 @@ class MigradorApp(tk.Tk):
                       "Verifique sempre este valor antes de criar o experimento.",
                  bg=BG2, fg=VERM, font=FONTE, justify="left").pack(anchor="w", pady=(4, 0))
 
+        # ── Botoes (ancorados antes do expand para ficarem sempre visíveis) ──
+        self.lbl_status = tk.Label(self, text="", bg=BG, fg=TEXTO2, font=FONTE)
+        self.lbl_status.pack(side="bottom", pady=(0, 8))
+        bf = tk.Frame(self, bg=BG); bf.pack(side="bottom", pady=10)
+        _btn(bf, "Criar experimento", self._criar, cor=VERDE).pack(side="left", padx=8)
+        _btn(bf, "Limpar",            self._limpar, cor=BG3).pack(side="left", padx=4)
+
         # ── Dados - abas Automatico / Manual ─────────────────────────────────
         s2_frame = tk.Frame(self, bg=BG)
         s2_frame.pack(fill="both", expand=True, padx=10, pady=(6, 2))
