@@ -1030,6 +1030,7 @@ class NTApp(ctk.CTk):
             beta_g2_hi          = _fval(self.e_beta_hi["g2"].get() or "1200"),
             beta_g3_lo          = _fval(self.e_beta_lo["g3"].get() or "100"),
             beta_g3_hi          = _fval(self.e_beta_hi["g3"].get() or "1200"),
+            ativa_mb            = self.v_ativa_mb.get(),
             ativa_exp           = self.v_ativa_exp.get(),
             ativa_g1            = self.v_ativa_g1.get(),
             ativa_g2            = self.v_ativa_g2.get(),
