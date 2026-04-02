@@ -1,0 +1,21 @@
+# Parâmetros físicos do experimento
+# Gerado pelo Natalia Time - Criador de Experimento
+# T_gas = 300.0 K  ->  beta_mb = 2981.274895
+# Offset de tempo aplicado aos dados: 0.0 ns (atraso da aquisição eletrônica)
+
+# Parâmetros da molécula
+beta_mb = 2981.274895
+m_frag  = 12.0
+m_mol   = 44.0
+
+# Parâmetros geométricos do espectrômetro DETOF
+DE      = 150.0
+D       = 6.8
+LL      = 6.8
+I7_NORM = 200.0
+
+# Energias das gaussianas (eV)
+# Definidas e gravadas pelo Natalia Time
+e_g3 = 1.5
+# e_g4 = 3.0
+# e_g5 = 2.0
