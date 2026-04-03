@@ -22,5 +22,8 @@ PARAR.txt
 *.temp
 ~$*
 
+# Pacote de distribuição (zips grandes — subir no Google Drive, não no GitHub)
+pacote_distribuicao/*.zip
+
 # Pasta pessoal — nunca versionar
 Pessoal/
